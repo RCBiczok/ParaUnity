@@ -1,20 +1,9 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
-
-if (POLICY CMP0003)
-  cmake_policy(SET CMP0003 NEW)
-endif ()
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
 IF(NOT ParaView_BINARY_DIR)
   FIND_PACKAGE(ParaView REQUIRED)
   INCLUDE(${PARAVIEW_USE_FILE})
 ENDIF()
-
-# Set a consistent MACOSX_RPATH default across all CMake versions.
-# When CMake 2.8.12 is required, change this default to 1.
-# When CMake 3.0.0 is required, remove this block (see CMP0042).
-if(NOT DEFINED CMAKE_MACOSX_RPATH)
-  set(CMAKE_MACOSX_RPATH 0)
-endif()
 
 IF(PARAVIEW_BUILD_QT_GUI)
   # We need to wrap for Qt stuff such as signals/slots etc. to work correctly.
@@ -25,7 +14,7 @@ IF(PARAVIEW_BUILD_QT_GUI)
   ENDIF ()
 
   # This is a macro for adding QActionGroup subclasses automatically as toolbars.
-  ADD_PARAVIEW_ACTION_GROUP(IFACES IFACE_SRCS
+  ADD_PARAVIEW_ACTION_GROUP (IFACES IFACE_SRCS
                             CLASS_NAME Unity3D
                             GROUP_NAME "ToolBar/Unity3D")
 
@@ -37,7 +26,7 @@ IF(PARAVIEW_BUILD_QT_GUI)
                       Unity3D.cxx)
 ENDIF()
 
-target_link_libraries (Unity3D
+TARGET_LINK_LIBRARIES (Unity3D
   LINK_PRIVATE
     vtkRenderingFreeType
     vtkIOExport 

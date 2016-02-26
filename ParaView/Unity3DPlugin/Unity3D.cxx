@@ -4,6 +4,7 @@
 #include <QStyle>
 #include <QDir>
 #include <QMessageBox>
+#include <QProcess>
 
 #include <vtkX3DExporter.h>
 #include <vtkSMRenderViewProxy.h>
@@ -33,7 +34,7 @@ Unity3D::Unity3D(QObject* p) : QActionGroup(p)
 void Unity3D::onAction(QAction* a)
 {
 	pqApplicationCore* core = pqApplicationCore::instance();
-	pqObjectBuilder* builder = core->getObjectBuilder();
+	//pqObjectBuilder* builder = core->getObjectBuilder();
 	pqServerManagerModel* sm = core->getServerManagerModel();
 
 	// get all the pqRenderView instances.
@@ -43,9 +44,17 @@ void Unity3D::onAction(QAction* a)
 	if (sm->getNumberOfItems<pqServer*>())
 	{
 		// just create it on the first server connection
-		pqServer* s = sm->getItemAtIndex<pqServer*>(0);
+		//pqServer* s = sm->getItemAtIndex<pqServer*>(0);
 
-		vtkSMRenderViewProxy* renderProxy = renderViews[0]->getRenderViewProxy();
+        QProcess* process = new QProcess(this);
+        QString file = "/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/Unity/ParaViewEmbeddedPlayer/build.app";
+        process->start(file);
+        
+        QMessageBox dialog(QMessageBox::Warning, "Debug",
+                           process->errorString());
+        dialog.exec();
+        
+		/*vtkSMRenderViewProxy* renderProxy = renderViews[0]->getRenderViewProxy();
 
 		QString exportLocations(QDir::tempPath() + "/Unity3DPlugin");
 
@@ -78,9 +87,7 @@ void Unity3D::onAction(QAction* a)
 			QMessageBox dialog(QMessageBox::Critical, "Error",
 				"Multiple Unity instances are running");
 			dialog.exec();
-		}
-
-
+		}*/
 	}
 }
 
