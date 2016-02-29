@@ -22,6 +22,7 @@ IF(PARAVIEW_BUILD_QT_GUI)
   # which are filled up by the above macro with relevant entries
   ADD_PARAVIEW_PLUGIN(Unity3D "1.0"
                       GUI_INTERFACES ${IFACES}
+                      GUI_RESOURCES Unity3D.qrc
                       SOURCES ${MOC_SRCS} ${IFACE_SRCS}
                       Unity3D.cxx)
 ENDIF()

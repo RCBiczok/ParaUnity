@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/Unity3D" >
+        <file>resources/editor.png</file>
+        <file>resources/editor_selected.png</file>
+        <file>resources/player.png</file>
+        <file>resources/player_selected.png</file>
+    </qresource>
+</RCC>
