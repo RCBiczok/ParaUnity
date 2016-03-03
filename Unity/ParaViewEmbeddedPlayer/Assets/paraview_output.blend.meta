@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 7bf52826070303d43abab7b76f69623b
-timeCreated: 1456133365
+guid: b7e20f481a9f84118a58503d408a18cf
+timeCreated: 1456936536
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -74,5 +74,5 @@ ModelImporter:
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
-  assetBundleName: 
+  assetBundleName: test
   assetBundleVariant: 

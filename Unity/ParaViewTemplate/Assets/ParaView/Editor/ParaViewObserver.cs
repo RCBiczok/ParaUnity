@@ -10,84 +10,85 @@ public class Startup
 {
 	private static string importDir;
 
-	#pragma warning disable 0414
-	private static FileStream lockFile;
-	#pragma warning restore 0414
+#pragma warning disable 0414
+	private static StreamWriter lockFile;
+#pragma warning restore 0414
 
 	private static string dataPath;
 
-	static Startup ()
+	static Startup()
 	{
-		InitializeFileWatcher ();
-		Debug.Log ("File system watcher initialized");
+		InitializeFileWatcher();
+		Debug.Log("File system watcher initialized");
 	}
 
-	[PermissionSet (SecurityAction.Demand, Name = "FullTrust")]
-	private static void InitializeFileWatcher ()
+	[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+	private static void InitializeFileWatcher()
 	{
 		dataPath = Application.dataPath;
-		importDir = Path.Combine (Path.Combine (Path.GetTempPath (), "Unity3DPlugin"), GetProjectName ());
-		Directory.CreateDirectory (importDir);
-		String logFileName = Path.Combine (importDir, "lock");
-		//using (StreamWriter sw = File.AppendText (logFileName)) {}
-		//lockFile = new FileInfo (logFileName).Open (FileMode.Open, FileAccess.Read, FileShare.None);
+		importDir = Path.Combine(Path.Combine(Path.GetTempPath(), "Unity3DPlugin"), GetProjectName());
+		Directory.CreateDirectory(importDir);
+		lockFile = File.AppendText(Path.Combine(importDir, "lock"));
 
 		// Create a new FileSystemWatcher and set its properties.
-		FileSystemWatcher watcher = new FileSystemWatcher ();
+		FileSystemWatcher watcher = new FileSystemWatcher();
 		watcher.Path = importDir;
 		/* Watch for changes in LastAccess and LastWrite times, and
            the renaming of files or directories. */
 		watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-		| NotifyFilters.FileName | NotifyFilters.DirectoryName;
+			| NotifyFilters.FileName | NotifyFilters.DirectoryName;
 		// Only watch import files.
 		watcher.Filter = "*.x3d";
 
 		// Add event handlers.
-		watcher.Created += new FileSystemEventHandler (OnCreate);
+		watcher.Created += new FileSystemEventHandler(OnCreate);
 
 		// Begin watching.
 		watcher.EnableRaisingEvents = true;
 	}
 
-	private static string GetProjectName ()
+	private static string GetProjectName()
 	{
-		string[] pathElements = dataPath.Split ("/" [0]);
-		return pathElements [pathElements.Length - 2];
+		string[] pathElements = dataPath.Split("/"[0]);
+		return pathElements[pathElements.Length - 2];
 	}
 
 	// TODO: Error-Handling, Auto-Focus Unity window etc.
-	private static void OnCreate (object source, FileSystemEventArgs e)
+	private static void OnCreate(object source, FileSystemEventArgs e)
 	{
 
-		Debug.Log ("Importing: " + e.FullPath);
+		Debug.Log("Importing: " + e.FullPath);
 
-		System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo ();
-		startInfo.FileName = "/Applications/blender.app/Contents/MacOS/blender";
-		startInfo.Arguments = string.Format ("--background --python \"{0}\" -- \"{1}\"", dataPath + "/ParaView/Editor/blender_post_process.py", e.FullPath);
+		/*System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+		startInfo.FileName = "C:/Program Files/Blender Foundation/Blender/blender.exe";
+		startInfo.Arguments = string.Format("--background --python \"{0}\" -- \"{1}\"", dataPath + "/ParaView/Editor/blender_post_process.py", e.FullPath);
 		startInfo.RedirectStandardOutput = true;
 		startInfo.RedirectStandardError = true;
 		startInfo.UseShellExecute = false;
 		startInfo.CreateNoWindow = true;
 
-		System.Diagnostics.Process p = new System.Diagnostics.Process ();
+		System.Diagnostics.Process p = new System.Diagnostics.Process();
 		p.StartInfo = startInfo;
 		p.EnableRaisingEvents = true;
-		try {
-			p.Start ();
-			p.WaitForExit ();
-		} catch (Exception ex) {
-			Debug.Log (ex.Message);
+		try
+		{
+			p.Start();
+			p.WaitForExit();
+		}
+		catch (Exception ex)
+		{
+			Debug.Log(ex.Message);
 			//throw ex;
 		}
-        
-		string line = p.StandardOutput.ReadLine ();
-		while (line != null) {
-			Debug.Log (line);
-			line = p.StandardOutput.ReadLine ();
-		}
-		string blenderFile = e.FullPath.Replace (".x3d", ".blend");
 
-		File.Delete (e.FullPath);
-		File.Move (blenderFile, Path.Combine (Path.Combine (dataPath, "ParaView"), Path.GetFileName (blenderFile)));
+		string line = p.StandardOutput.ReadLine();
+		while(line != null) {
+			Debug.Log(line);
+			line = p.StandardOutput.ReadLine();
+		}
+		string blenderFile = e.FullPath.Replace(".x3d", ".blend");
+
+		File.Delete(e.FullPath);
+		File.Move(blenderFile, Path.Combine(Path.Combine(dataPath, "ParaView"), Path.GetFileName(blenderFile)));*/
 	}
 }

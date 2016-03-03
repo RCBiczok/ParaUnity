@@ -32,7 +32,6 @@ Unity3D::Unity3D(QObject* p) : QActionGroup(p)
 	QAction* embeddedAction = new QAction(embeddedActionIcon, "Show in Unity Player", this);
 	embeddedAction->setData(UNITY_PLAYER_ACTION);
 	this->addAction(embeddedAction);
-	QObject::connect(this, SIGNAL(triggered(QAction*)), this, SLOT(onAction(QAction*)));
     
     // Editor mode
     QIcon exportActionIcon(QPixmap(":/Unity3D/resources/editor.png"));
@@ -40,6 +39,7 @@ Unity3D::Unity3D(QObject* p) : QActionGroup(p)
     QAction* exportAction = new QAction(exportActionIcon, "Export to Unity Editor", this);
     exportAction->setData(UNITY_EDITOR_ACTION);
     this->addAction(exportAction);
+    
     QObject::connect(this, SIGNAL(triggered(QAction*)), this, SLOT(onAction(QAction*)));
 }
 
@@ -48,9 +48,7 @@ void Unity3D::onAction(QAction* a) {
 	pqApplicationCore* core = pqApplicationCore::instance();
 	pqServerManagerModel* sm = core->getServerManagerModel();
 
-	/// Check that we are connect to some server (either builtin or remote).
 	if (sm->getNumberOfItems<pqServer*>()) {
-     
         if (a->data() == UNITY_PLAYER_ACTION) {
             this->showInUnityPlayer(sm);
         } else if(a->data() == UNITY_EDITOR_ACTION) {
@@ -63,13 +61,77 @@ void Unity3D::onAction(QAction* a) {
 
 //-----------------------------------------------------------------------------
 void Unity3D::showInUnityPlayer(pqServerManagerModel* sm) {
-    QProcess* process = new QProcess(this);
-    QString file = "/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/Unity/ParaViewEmbeddedPlayer/build/build.app";
-    process->start(file);
+    QDir playerWorkingDir(QDir::tempPath() + "/Unity3DPlugin/Embedded");
+
+    if(!playerWorkingDir.exists()) {
+        playerWorkingDir.mkpath(".");
+    }
+    QFile blenderConverterScript(playerWorkingDir.path() + "/blender_convert.py");
+    if(!blenderConverterScript.exists()) {
+        QFile::copy(":/Unity3D/resources/blender_convert.py", blenderConverterScript.fileName());
+    }
     
-    QMessageBox dialog(QMessageBox::Warning, "Debug",
-                       process->errorString());
-    dialog.exec();
+    QList<pqRenderView*> renderViews = sm->findItems<pqRenderView*>();
+    vtkSMRenderViewProxy* renderProxy = renderViews[0]->getRenderViewProxy();
+    vtkSmartPointer<vtkX3DExporter> exporter =
+    vtkSmartPointer<vtkX3DExporter>::New();
+    QString exportFile = playerWorkingDir.filePath("paraview_output.x3d");
+    QString outFile = playerWorkingDir.filePath("paraview_output.blend");
+    exporter->SetInput(renderProxy->GetRenderWindow());
+    exporter->SetFileName(exportFile.toLatin1());
+    exporter->Write();
+    
+    
+    QString program = "/Applications/blender.app/Contents/MacOS/blender";
+    QStringList arguments;
+    arguments << "--background";
+    arguments << "--python" << blenderConverterScript.fileName();
+    arguments << "--" << exportFile;
+    
+    QProcess blender;
+    blender.start(program, arguments);
+    if (!blender.waitForStarted()) {
+        QMessageBox dialog(QMessageBox::Warning, "Blender Export",
+                           "");
+        dialog.setText("Unable to call blender conversion script");
+        dialog.exec();
+    }
+    
+    if (!blender.waitForFinished()) {
+        QMessageBox dialog(QMessageBox::Warning, "Blender Export",
+                           "");
+        dialog.setText("Unsuccessful export to blender");
+        dialog.exec();
+    }
+    
+    if(this->unityPlayerProcess == NULL || this->unityPlayerProcess->pid() <= 0) {
+        this->unityPlayerProcess = new QProcess(this);
+        
+        QString file = "/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/Unity/ParaViewEmbeddedPlayer/build/unity_player.app/Contents/MacOS/unity_player";
+        this->unityPlayerProcess->start(file);
+        if (!unityPlayerProcess->waitForStarted()) {
+            QMessageBox dialog(QMessageBox::Warning, "Unity Player Error",
+                               "");
+            dialog.setText("Unable to start unity player");
+            dialog.exec();
+            return;
+        }
+        
+        this->socket = new QTcpSocket(this);
+    }
+    
+    QByteArray data(outFile.toLatin1());
+    
+    /*QMessageBox dialog(QMessageBox::Warning, "Unity Player Error",
+                       "");
+    dialog.setText(outFile.toLatin1());
+    dialog.exec();*/
+    
+    this->socket->connectToHost("127.0.0.1", 51796);
+    if( this->socket->waitForConnected() ) {
+        this->socket->write( data );
+        this->socket->waitForBytesWritten();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -87,10 +149,10 @@ void Unity3D::exportToUnityEditor(pqServerManagerModel* sm) {
     QStringList activeUnityInstances;
     foreach(const QString &dir, QDir(exportLocations).entryList()) {
         if (dir != "." && dir != "..") {
-            QString lockFile = exportLocations + "/" + dir + "/lock";
-            if (QFile::exists(lockFile) && !QFile::remove(lockFile)) {
+            //QString lockFile = exportLocations + "/" + dir + "/lock";
+            //if (QFile::exists(lockFile) && !QFile::remove(lockFile)) {
                 activeUnityInstances << dir;
-            }
+            //}
         }
     }
      
@@ -103,7 +165,7 @@ void Unity3D::exportToUnityEditor(pqServerManagerModel* sm) {
     else if (activeUnityInstances.length() == 1) {
         vtkSmartPointer<vtkX3DExporter> exporter =
         vtkSmartPointer<vtkX3DExporter>::New();
-        QString exportFile = exportLocations + "/" + activeUnityInstances[0] + "/paraview_output.tmp";
+        QString exportFile = exportLocations + "/" + activeUnityInstances[0] + "/paraview_output.x3d";
         exporter->SetInput(renderProxy->GetRenderWindow());
         exporter->SetFileName(exportFile.toLatin1());
         exporter->Write();
