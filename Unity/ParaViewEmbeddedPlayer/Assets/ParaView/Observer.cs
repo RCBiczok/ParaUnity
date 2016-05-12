@@ -21,14 +21,6 @@ public class Observer : MonoBehaviour
 		listener.Start ();
 		int port = ((IPEndPoint)listener.LocalEndpoint).Port;
 		Debug.Log ("Port: " + port);
-
-		/*ThreadUtil.RunAsync (() => {
-
-			while (listener != null) {
-
-			}
-		});*/
-
 	}
 
 	public void Update ()
@@ -38,35 +30,29 @@ public class Observer : MonoBehaviour
 
 			Debug.Log ("Connection accepted from " + soc.RemoteEndPoint);
 
-			string message = getMessage(soc);
-			Debug.Log(message);
+			string message = getMessage (soc);
+			Debug.Log (message);
 
-			GameObject.Find("Camera").GetComponent<Camera>().GetComponent<Loader>().LoadFile (message);
-
-
-			//ThreadUtil.QueueOnMainThread(()=>{
-				//for (int i = 0; i < meshNode.transform.childCount; i++)
-				//{
-					//Destroy(meshNode.transform.GetChild(i).gameObject);
-				//}
-
-			//});
+			GameObject.Find ("Camera").GetComponent<Camera> ().GetComponent<Loader> ().LoadFile (message);
 		}
 	}
 
 	void OnApplicationQuit ()
 	{
-		listener.Stop ();
-		listener = null;
+		if (listener != null) {
+			listener.Stop ();
+			listener = null;
+		}
 	}
 
-	private string getMessage(Socket soc) {
+	private string getMessage (Socket soc)
+	{
 		byte[] b = new byte[255];
 		int k = soc.Receive (b);
-		StringBuilder str = new StringBuilder();
+		StringBuilder str = new StringBuilder ();
 		for (int i = 0; i < k; i++) {
-			str.Append(Convert.ToChar (b [i]));
+			str.Append (Convert.ToChar (b [i]));
 		}
-		return str.ToString();
+		return str.ToString ();
 	}
 }

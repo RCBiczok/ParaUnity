@@ -11,6 +11,7 @@ namespace BlenderMeshReader
         public string Name { get; set; }
         public Vector3[] VertexList { get; set; }
         public Vector3[] NormalList { get; set; }
+		public Color[] ColorList { get; set; }
         public List<PolygonListEntry> PolygonList { get; set; }
         public int[] LoopList { get; set; }
         public int[] TriangleList { get; set; }
@@ -20,6 +21,7 @@ namespace BlenderMeshReader
             this.Name = "defaultMesh";
             VertexList = new Vector3[0];
             NormalList = new Vector3[0];
+			ColorList = new Color[0];
             PolygonList = new List<PolygonListEntry>();
             LoopList = new int[0];
             TriangleList = new int[0];
@@ -30,6 +32,7 @@ namespace BlenderMeshReader
             this.Name = name;
             VertexList = new Vector3[0];
             NormalList = new Vector3[0];
+			ColorList = new Color[0];
             PolygonList = new List<PolygonListEntry>();
             LoopList = new int[0];
             TriangleList = new int[0];
@@ -102,6 +105,15 @@ namespace BlenderMeshReader
                 triangles[i + 2] = TriangleList[i + 1];
             }
             result.TriangleList = triangles;
+
+			Color[] colors = new Color[ColorList.Length];
+			//Normalize [0, 255] to [0,1]
+			for (int i = 0; i < ColorList.Length; i++)
+			{
+				colors[i] = new Color (ColorList[i].r/255, ColorList[i].g/255, 
+					ColorList[i].b/255, ColorList[i].a/255);
+			}
+			result.ColorList = colors;
 
             return result;
 

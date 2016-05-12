@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/Unity3D" >
+        <file>editor.png</file>
+        <file>editor_selected.png</file>
+        <file>player.png</file>
+        <file>player_selected.png</file>
+        <file>blender_convert.py</file>
+    </qresource>
+</RCC>

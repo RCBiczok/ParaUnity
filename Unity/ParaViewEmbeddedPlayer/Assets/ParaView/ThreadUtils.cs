@@ -6,21 +6,21 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 
-public class ThreadUtil : MonoBehaviour
+public class ThreadUtils : MonoBehaviour
 {
-	private static ThreadUtil _current;
+	private static ThreadUtils _current;
 
-	public static ThreadUtil Current {
+	public static ThreadUtils Current {
 		get {
 			if (_current == null && Application.isPlaying) {
 
-				var g = GameObject.Find ("ThreadUtil");
+				var g = GameObject.Find ("ThreadUtils");
 				if (g == null) {
-					g = new GameObject ("ThreadUtil");
+					g = new GameObject ("ThreadUtils");
 					g.hideFlags = HideFlags.HideAndDontSave;
 				}
 
-				_current = g.GetComponent<ThreadUtil> () ?? g.AddComponent<ThreadUtil> ();
+				_current = g.GetComponent<ThreadUtils> () ?? g.AddComponent<ThreadUtils> ();
 			}
 
 			return _current;
@@ -142,7 +142,7 @@ public class ThreadUtil : MonoBehaviour
 			}
 
 		} catch (Exception e) {
-			Debug.LogError ("ThreadUtil Error " + e.ToString ());
+			Debug.LogError ("ThreadUtils Error " + e.ToString ());
 		}
 	}
 }
