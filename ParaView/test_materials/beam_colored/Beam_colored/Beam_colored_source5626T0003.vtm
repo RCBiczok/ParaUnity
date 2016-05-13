@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<VTKFile type="vtkMultiBlockDataSet" version="1.0" byte_order="LittleEndian" header_type="UInt32" compressor="vtkZLibDataCompressor">
+  <vtkMultiBlockDataSet>
+    <DataSet index="0" file="Beam_colored_source5626T0003/Beam_colored_source5626T0003_0_0.vtp">
+    </DataSet>
+  </vtkMultiBlockDataSet>
+</VTKFile>

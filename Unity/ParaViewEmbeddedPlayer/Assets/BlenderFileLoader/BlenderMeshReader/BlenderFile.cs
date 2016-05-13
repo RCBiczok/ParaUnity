@@ -54,19 +54,6 @@ namespace BlenderMeshReader
         public byte bweight;
     }
 
-	[StructLayout(LayoutKind.Explicit, Pack = 1, Size = 4)]
-	struct MLoopCol
-	{
-		[FieldOffset(0)]
-		public byte r;
-		[FieldOffset(1)]
-		public byte g;
-		[FieldOffset(2)]
-		public byte b;
-		[FieldOffset(3)]
-		public byte a;
-	}
-
     class BlenderFile
     {
         public static int PointerSize { get; private set; }
@@ -241,13 +228,17 @@ namespace BlenderMeshReader
             int indexMesh = 0;
 
             int startPositionMVert = -1;
-			int startPositionMPoly = -1;
+            int lengthMVert = 0;
+
+            int startPositionMPoly = -1;
+            int lengthMPoly = 0;
+
             int startPositionMLoop = -1;
-			int startPositionMLoopCol = -1;
+            int lengthMLoop = 0;
 
             foreach (Structure s in StructureList)
             {
-                if(s.Name == "Mesh") //search index of mesh structure and start position of *mvert, *mpoly, *mloop, *mcol in mesh structure
+                if(s.Name == "Mesh") //search index of mesh structure and start position of *mvert, *mpoly, *mloop in mesh structure
                 {
                     indexMesh = s.Index;
                     int countLenght = 0;
@@ -265,13 +256,25 @@ namespace BlenderMeshReader
                         {
                             startPositionMLoop = countLenght;
                         }
-						else if (f.Name == "*mloopcol")
-						{
-							startPositionMLoopCol =  countLenght;
-						}
                         countLenght += f.getLength();
                     }
                 }
+                
+                if(s.Name == "MVert") //search for structure information of MVert
+                {
+                    lengthMVert = s.getLength();
+                }
+
+                if (s.Name == "MPoly") //search for structure information of MPoly
+                {
+                    lengthMPoly = s.getLength();
+                }
+
+                if (s.Name == "MLoop") //search for structure information of MLoop
+                {
+                    lengthMLoop = s.getLength();
+                }
+
             }
             //read vertices, polys and loops
             BinaryReader reader = new BinaryReader(File.Open(Filename, FileMode.Open));
@@ -303,9 +306,6 @@ namespace BlenderMeshReader
 
                     reader.BaseStream.Position = fileBlock.StartAddess + (PointerSize == 8 ? 24 : 20) + startPositionMLoop;
                     ulong mLoopAddress = PointerSize == 8 ? reader.ReadUInt64() : reader.ReadUInt32(); //pointer to file block with MEdge structure
-
-					reader.BaseStream.Position = fileBlock.StartAddess + (PointerSize == 8 ? 24 : 20) + startPositionMLoopCol;
-					ulong mLoopColAddress = PointerSize == 8 ? reader.ReadUInt64() : reader.ReadUInt32(); //pointer to file block with MCol structure
 
                     foreach (FileBlock f in FileBockList)
                     {
@@ -360,23 +360,6 @@ namespace BlenderMeshReader
                                 currentMesh.LoopList[i] = readLoop[i].v;
                             }
                         }
-						else if (f.OldAddess == mLoopColAddress)
-						{
-							currentMesh.ColorList = new Color[f.Count];
-
-							reader.BaseStream.Position = f.StartAddess + (PointerSize == 8 ? 24 : 20);
-							MLoopCol[] readCols = new MLoopCol[f.Count];
-							byte[] readBytes = reader.ReadBytes(f.Count * Marshal.SizeOf(typeof(MLoopCol)));
-							GCHandle pinnedHandle = GCHandle.Alloc(readCols, GCHandleType.Pinned);
-							Marshal.Copy(readBytes, 0, pinnedHandle.AddrOfPinnedObject(), readBytes.Length);
-							pinnedHandle.Free();
-
-							for(int i = 0; i< readCols.Length; i++)
-							{
-								currentMesh.ColorList[i] = new Color (readCols[i].r, readCols[i].g, 
-									readCols[i].b, readCols[i].a);
-							}
-						}
                     }
                     currentMesh.createTriangleList();
 
@@ -429,10 +412,7 @@ namespace BlenderMeshReader
                     outterListElement.Add(newMesh);
                     List<Vector3> vertList = new List<Vector3>(); //Create vertices list for submesh
                     List<Vector3> normList = new List<Vector3>(); //Create normal list for submesh
-					List<Color> colorList = new List<Color>(); //Create color list for submesh
                     List<int> triangles = new List<int>(); //Create triangle list for submesh
-
-					Debug.Log (completeMesh.TriangleList.Length);
 
                     int[] findVertexIndex = new int[completeMesh.VertexList.Length]; //for optimization, key: vertex index of complete mesh, value: vertex index of new mesh
                     for(int i = 0; i < findVertexIndex.Length; i++) //memset() faster?
@@ -452,7 +432,6 @@ namespace BlenderMeshReader
                             {
                                 vertList.Add(completeMesh.VertexList[indexCurrentVertex]);
                                 normList.Add(completeMesh.NormalList[indexCurrentVertex]);
-								colorList.Add(completeMesh.ColorList[indexCurrentVertex]);
                                 findVertexIndex[indexCurrentVertex] = vertList.Count - 1;
                                 triangles.Add(vertList.Count - 1);
                             }
@@ -465,7 +444,6 @@ namespace BlenderMeshReader
                     }
                     newMesh.VertexList = vertList.ToArray();
                     newMesh.NormalList = normList.ToArray();
-					newMesh.ColorList = colorList.ToArray();
                     newMesh.TriangleList = triangles.ToArray();
                 }
 

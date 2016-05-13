@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<VTKFile type="Collection" version="0.1" byte_order="LittleEndian" header_type="UInt32" compressor="vtkZLibDataCompressor">
+  <Collection>
+    <DataSet timestep="0" group="source4850" part="0" file="Beam_colored/Beam_colored_source4850T0000.vtm"/>
+    <DataSet timestep="0" group="source5626" part="0" file="Beam_colored/Beam_colored_source5626T0000.vtm"/>
+    <DataSet timestep="1" group="source4850" part="0" file="Beam_colored/Beam_colored_source4850T0001.vtm"/>
+    <DataSet timestep="1" group="source5626" part="0" file="Beam_colored/Beam_colored_source5626T0001.vtm"/>
+    <DataSet timestep="2" group="source4850" part="0" file="Beam_colored/Beam_colored_source4850T0002.vtm"/>
+    <DataSet timestep="2" group="source5626" part="0" file="Beam_colored/Beam_colored_source5626T0002.vtm"/>
+    <DataSet timestep="3" group="source4850" part="0" file="Beam_colored/Beam_colored_source4850T0003.vtm"/>
+    <DataSet timestep="3" group="source5626" part="0" file="Beam_colored/Beam_colored_source5626T0003.vtm"/>
+    <DataSet timestep="4" group="source4850" part="0" file="Beam_colored/Beam_colored_source4850T0004.vtm"/>
+    <DataSet timestep="4" group="source5626" part="0" file="Beam_colored/Beam_colored_source5626T0004.vtm"/>
+  </Collection>
+</VTKFile>

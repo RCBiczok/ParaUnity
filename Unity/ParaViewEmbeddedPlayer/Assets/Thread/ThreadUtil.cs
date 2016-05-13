@@ -65,18 +65,18 @@ using UnityEngine;
 using System.ComponentModel;
 using System;
 
-public class ThreadUtil {
+public class ThreadUtil2 {
 
     BackgroundWorker backgroundWorker;
 
-    //private DoWorkEventHandler threadedMethod;
+    private DoWorkEventHandler threadedMethod;
     private RunWorkerCompletedEventHandler callbackMethod;
 
     private DateTime start;
 
-    public ThreadUtil(DoWorkEventHandler threadedMethod, RunWorkerCompletedEventHandler callbackMethod)
+    public ThreadUtil2(DoWorkEventHandler threadedMethod, RunWorkerCompletedEventHandler callbackMethod)
     {
-        //this.threadedMethod = threadedMethod;
+        this.threadedMethod = threadedMethod;
         this.callbackMethod = callbackMethod;
 
         backgroundWorker = new BackgroundWorker();
@@ -89,14 +89,14 @@ public class ThreadUtil {
     private void Callback(object sender, RunWorkerCompletedEventArgs e)
     {
         callbackMethod(sender, e);
-        Debug.Log("[ThreadUtil] Thread finished - duration: " + (DateTime.Now - start));
+        Debug.Log("[ThreadUtil2] Thread finished - duration: " + (DateTime.Now - start));
     }
 
     public void Run()
     {
         start = DateTime.Now;
         backgroundWorker.RunWorkerAsync();
-        Debug.Log("[ThreadUtil] Thread started");
+        Debug.Log("[ThreadUtil2] Thread started");
     }
 
     /*
@@ -105,7 +105,7 @@ public class ThreadUtil {
     public void Abort()
     {
         backgroundWorker.CancelAsync();
-        Debug.Log("[ThreadUtil] Thread aborted");
+        Debug.Log("[ThreadUtil2] Thread aborted");
     }
 
     public bool IsBusy()

@@ -1,0 +1,333 @@
+# vtk DataFile Version 3.0
+vtk output
+ASCII
+DATASET UNSTRUCTURED_GRID
+POINTS 388 float
+0.0141421 0.0299919 0.145448 0.0441421 0.0300203 0.114815 -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan 0.0141421 0 0.185858 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+0.0153572 0.0146428 0.185374 0.03 -1.90002e-20 0.199963 -3.03731e+10 1.48252e+09 3.18922e+10 
+-3.03731e+10 -3.03731e+10 0.171374 -1.45249e+12 0.0451677 0.185555 0.03 0.03 -1.49143e+12 
+0.03 3.974e+12 -1.49109e+12 -2.87285e+12 2.80959e+12 1.45869e+12 -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-5.9894e+09 0.0146428 1.32084e+10 0.03 -8.94926e+09 1.66088e+10 -1.17002e+10 -2.62219e+09 9.96527e+09 
+0.03 0.0300034 1.66095e+10 -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan 3.7283e-21 4.16436e+09 0.128968 
+4.21133e-20 0.06 9.00955e+09 -5.7707e+06 6.03335e+09 -4.01571e+09 -3.84413e+09 8.56649e+09 9.00955e+09 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan -nan -nan -nan -nan -nan -nan 
+-nan -nan -nan 
+CELLS 97 485
+4 46 47 35 45 
+4 46 47 40 8 
+4 46 35 7 34 
+4 46 21 0 8 
+4 46 35 0 7 
+4 48 29 16 6 
+4 48 6 16 3 
+4 48 28 3 15 
+4 48 42 28 27 
+4 28 15 48 2 
+4 48 42 36 29 
+4 48 36 42 14 
+4 47 4 35 22 
+4 47 35 4 1 
+4 46 47 45 40 
+4 47 45 22 35 
+4 46 34 45 35 
+4 47 35 1 8 
+4 38 44 11 43 
+4 46 35 47 8 
+4 42 30 36 29 
+4 29 30 36 17 
+4 48 29 36 16 
+4 48 6 3 28 
+4 14 2 27 48 
+4 48 42 27 14 
+4 43 23 11 10 
+4 44 32 43 38 
+4 43 24 11 23 
+4 37 41 39 31 
+4 45 23 10 22 
+4 44 25 12 24 
+4 41 31 37 30 
+4 41 26 13 25 
+4 48 29 6 28 
+4 42 26 27 14 
+4 41 42 13 26 
+4 44 38 39 32 
+4 46 34 7 21 
+4 47 9 8 1 
+4 47 22 45 9 
+4 44 11 24 12 
+4 48 42 29 28 
+4 30 17 18 37 
+4 41 12 25 13 
+4 46 35 8 0 
+4 33 21 40 20 
+4 41 13 37 12 
+4 31 30 18 37 
+4 43 10 11 38 
+4 45 9 10 40 
+4 32 20 38 19 
+4 32 39 19 38 
+4 31 18 19 39 
+4 39 38 44 11 
+4 34 40 33 21 
+4 44 12 41 39 
+4 48 15 3 16 
+4 48 16 36 15 
+4 42 37 36 30 
+4 43 45 10 40 
+4 31 32 39 19 
+4 30 36 17 37 
+4 42 36 37 13 
+4 48 14 15 36 
+4 29 16 17 36 
+4 43 38 40 10 
+4 46 34 21 40 
+4 33 20 40 38 
+4 42 14 36 13 
+4 2 15 48 14 
+4 33 38 32 20 
+4 43 40 33 45 
+4 41 12 37 39 
+4 46 7 0 21 
+4 46 40 45 34 
+4 45 34 40 33 
+4 47 1 22 9 
+4 46 8 40 21 
+4 45 22 10 9 
+4 47 8 9 40 
+4 43 45 23 10 
+4 43 33 38 32 
+4 41 39 31 44 
+4 47 40 9 45 
+4 38 43 40 33 
+4 47 22 1 4 
+4 31 39 37 18 
+4 44 25 41 12 
+4 44 31 32 39 
+4 42 13 26 14 
+4 44 12 39 11 
+4 44 11 43 24 
+4 41 13 42 37 
+4 48 2 27 28 
+4 5 28 27 2 
+4 41 42 30 37 
+
+CELL_TYPES 97
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+10
+

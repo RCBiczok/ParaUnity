@@ -13,7 +13,6 @@ namespace BlenderMeshReader
         public string Name { get; set; }
         public Vector3[] VertexList { get; set; }
         public Vector3[] NormalList { get; set; }
-		public Color[] ColorList { get; set; }
         public int[] TriangleList { get; set; }
 
         public UnityMesh()
@@ -21,7 +20,6 @@ namespace BlenderMeshReader
             this.Name = "defaultMesh";
             VertexList = new Vector3[0];
             NormalList = new Vector3[0];
-			ColorList = new Color[0];
             TriangleList = new int[0];
         }
 
@@ -30,7 +28,6 @@ namespace BlenderMeshReader
             this.Name = name;
             VertexList = new Vector3[0];
             NormalList = new Vector3[0];
-			ColorList = new Color[0];
             TriangleList = new int[0];
         }
     }
