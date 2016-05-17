@@ -41,8 +41,6 @@
 
 		public static explicit operator X3DMesh (IndexedFaceSet faceSet)
 		{
-			faceSet.Dump ();
-
 			IndexedFaceSet preparedFaceSet = faceSet.ToTriangulatedFaceSet ().
 				ToVertexOrientedFaceSet ();
 
@@ -60,9 +58,7 @@
 			if (preparedFaceSet.Colors != null) {
 				colors = preparedFaceSet.Colors.ToArray ();
 			}
-
-			preparedFaceSet.Dump ();
-
+				
 			return new X3DMesh (preparedFaceSet.Vertices.ToArray (), 
 				normals, 
 				colors, 
@@ -74,42 +70,62 @@
 			LinkedList<List<int>> triangles = new LinkedList<List<int>> ();
 			LinkedList<Vector3> newNormals = new LinkedList<Vector3> ();
 			LinkedList<Color> newColors = new LinkedList<Color> ();
+
 			for (int faceIdx = 0; faceIdx < this.Faces.Count; faceIdx++) {
+
+				foreach (int vertexId in this.Faces [faceIdx]) {
+					Console.Write (vertexId + ",");
+				}
+				Console.WriteLine ();
 
 				//X3D standard requires that the faces are planar and do not have "holes"
 
-				Vector2[] prohjectedVertices = ProjectorVerticesOf (this.Faces[faceIdx], 
-					(vec) => new Vector2 (vec.x, vec.y));
+				Vector2[] prohjectedVertices = ProjectorVerticesOf (this.Faces [faceIdx], 
+					                               (vec) => new Vector2 (vec.x, vec.y));
 				if (HasDuplicates (prohjectedVertices)) {
-					prohjectedVertices = ProjectorVerticesOf (this.Faces[faceIdx], 
+					prohjectedVertices = ProjectorVerticesOf (this.Faces [faceIdx], 
 						(vec) => new Vector2 (vec.y, vec.z));
 				}
 
 				Triangulator tr = new Triangulator (prohjectedVertices);
 				int[] indices = tr.Triangulate ();
-
+					
 				for (int i = 0; i < indices.Length / 3; i++) {
 					List<int> triangle = new List<int> ();
-					triangle.Add (this.Faces[faceIdx] [indices [3 * i]]);
-					triangle.Add (this.Faces[faceIdx] [indices [3 * i+1]]);
-					triangle.Add (this.Faces[faceIdx]  [indices [3 * i+2]]);
+
+					if (IsFacingInRightDirection (
+						    this.Vertices [this.Faces [faceIdx] [0]],
+						    this.Vertices [this.Faces [faceIdx] [1]],
+						    this.Vertices [this.Faces [faceIdx] [2]],
+						    this.Vertices [this.Faces [faceIdx] [indices [3 * i]]], 
+						    this.Vertices [this.Faces [faceIdx] [indices [3 * i + 1]]], 
+						    this.Vertices [this.Faces [faceIdx] [indices [3 * i + 2]]])) {
+						triangle.Add (this.Faces [faceIdx] [indices [3 * i]]);
+						triangle.Add (this.Faces [faceIdx] [indices [3 * i + 1]]);
+						triangle.Add (this.Faces [faceIdx] [indices [3 * i + 2]]);
+					} else {
+						triangle.Add (this.Faces [faceIdx] [indices [3 * i + 2]]);
+						triangle.Add (this.Faces [faceIdx] [indices [3 * i + 1]]);
+						triangle.Add (this.Faces [faceIdx] [indices [3 * i]]);
+					}
+
 					triangles.AddLast (triangle);
 					if (!this.NormalPerVertex) {
-						newNormals.AddLast (this.Normals[faceIdx]);
+						newNormals.AddLast (this.Normals [faceIdx]);
 					}
 					if (!this.ColorPerVertex) {
-						newColors.AddLast (this.Colors[faceIdx]);
+						newColors.AddLast (this.Colors [faceIdx]);
 					}
 				}
 			}
-
+				
 			List<Vector3> normals = this.Normals;
 			if (!this.NormalPerVertex) {
-				normals = new List<Vector3>(newNormals);
+				normals = new List<Vector3> (newNormals);
 			}
 			List<Color> colors = this.Colors;
 			if (!this.ColorPerVertex) {
-				colors = new List<Color>(newColors);
+				colors = new List<Color> (newColors);
 			}
 
 			return new IndexedFaceSet (this.NormalPerVertex, 
@@ -117,7 +133,7 @@
 				this.Vertices, 
 				normals, 
 				colors, 
-				new List<List<int>>(triangles));
+				new List<List<int>> (triangles));
 		}
 
 		/// <summary>
@@ -198,6 +214,15 @@
 			return new IndexedFaceSet (true, true, vertices, normals, colors, faces);
 		}
 
+		private bool IsFacingInRightDirection (Vector3 aOld, Vector3 bOld, Vector3 cOld,
+		                                       Vector3 aNew, Vector3 bNew, Vector3 cNew)
+		{
+
+			Vector3 surfaceNormalOld = Vector3.Cross (bOld - aOld, cOld - aOld);
+			Vector3 surfaceNormalNew = Vector3.Cross (bNew - aNew, cNew - aNew);
+
+			return Vector3.Dot (surfaceNormalOld, surfaceNormalNew) > 0;
+		}
 
 		private bool HasDuplicates (Vector2[] vertices)
 		{

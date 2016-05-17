@@ -23,8 +23,8 @@ public class Loader : MonoBehaviour
 	void Start ()
 	{
 		//LoadFile ("/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/simple/Beam_Tet4_NElement=24_0.x3d");
-		LoadFile ("/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/liver_colored/liver_colored.x3d");
-		//LoadFile ("/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/paraview_tutorial_data/disk_out_ref/disk_out_ref.x3d");
+		//LoadFile ("/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/liver_colored/liver_colored.x3d");
+		LoadFile ("/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/paraview_tutorial_data/disk_out_ref/disk_out_ref.x3d");
 	}
 	
 	// Update is called once per frame
@@ -109,7 +109,6 @@ public class Loader : MonoBehaviour
 			objToSpawn.GetComponent<MeshCollider> ().sharedMesh = mesh; //TODO Reduce mesh??
 
 			objToSpawn.transform.localPosition = new Vector3 (0, 0, 0);
-			//objToSpawn.transform.localScale = new Vector3(1, 1, 1);
 
 			unityMeshes = new List<X3DMesh> ();
 			loaded = false;
