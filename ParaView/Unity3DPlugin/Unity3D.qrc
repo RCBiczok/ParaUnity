@@ -4,6 +4,5 @@
         <file>resources/editor_selected.png</file>
         <file>resources/player.png</file>
         <file>resources/player_selected.png</file>
-        <file>resources/blender_convert.py</file>
     </qresource>
 </RCC>
