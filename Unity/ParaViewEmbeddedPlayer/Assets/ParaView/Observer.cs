@@ -1,72 +1,113 @@
-﻿using UnityEngine;
-
-using System;
-using System.Collections;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-
-public class Observer : MonoBehaviour
+﻿namespace ParaUnity
 {
+	using UnityEngine;
+	using ParaUnity.X3D;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Net;
+	using System.Net.Sockets;
+	using System.Text;
 
-	public GameObject meshNode;
-	public Material defaultMaterial;
-
-	TcpListener listener;
-
-	public void Start ()
+	public class Observer : MonoBehaviour
 	{
-		listener = new TcpListener (IPAddress.Loopback, 51796);
-		listener.Start ();
-		int port = ((IPEndPoint)listener.LocalEndpoint).Port;
-		Debug.Log ("Port: " + port);
 
-		/*ThreadUtil.RunAsync (() => {
+		public GameObject meshNode;
+		public Material defaultMaterial;
 
-			while (listener != null) {
+		TcpListener listener;
 
-			}
-		});*/
+		public void Start ()
+		{
+			listener = new TcpListener (IPAddress.Loopback, 0);
+			listener.Start ();
+			int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+			Debug.Log ("Port: " + port);
 
-	}
+			string embeddedPlayerPath = Path.GetTempPath () + "/Unity3DPlugin/Embedded/" 
+				+ System.Diagnostics.Process.GetCurrentProcess ().Id;
+			Directory.CreateDirectory (embeddedPlayerPath);
 
-	public void Update ()
-	{
-		if (listener.Pending ()) {
-			Socket soc = listener.AcceptSocket ();
+			string portFile = embeddedPlayerPath + "/port" + port;
+			using (File.Create(portFile)) ;
+		}
 
-			Debug.Log ("Connection accepted from " + soc.RemoteEndPoint);
+		public void Update ()
+		{
+			if (listener.Pending ()) {
+				Socket soc = listener.AcceptSocket ();
 
-			string message = getMessage(soc);
-			Debug.Log(message);
+				//Debug.Log ("Connection accepted from " + soc.RemoteEndPoint);
 
-			GameObject.Find("Camera").GetComponent<Camera>().GetComponent<Loader>().LoadFile (message);
+				string message = getMessage (soc);
+				Debug.Log (message);
+
+				string path = message;
+				X3DLoader loader = new X3DLoader ();
+				List<X3DMesh> meshes = loader.Load (path);
+
+				foreach (X3DMesh unityMesh in meshes) {
+					//Spawn object
+					//TODO
+					GameObject objToSpawn = new GameObject ("TODO");
+
+					objToSpawn.transform.parent = meshNode.transform;
+
+					//Add Components
+					objToSpawn.AddComponent<MeshFilter> ();
+					objToSpawn.AddComponent<MeshCollider> (); //TODO need to much time --> own thread?? Dont work in Unity!!
+					objToSpawn.AddComponent<MeshRenderer> ();
+
+					//Add material
+					objToSpawn.GetComponent<MeshRenderer> ().material = defaultMaterial;
+					objToSpawn.GetComponent<MeshRenderer> ().material.shader = Shader.Find ("Standard (Vertex Color)");
+
+					//Create Mesh
+					Mesh mesh = new Mesh ();
+					//mesh.name = unityMesh.Name;
+					mesh.vertices = unityMesh.Vertices;
+					mesh.triangles = unityMesh.Triangles;
+					if (unityMesh.Normals != null) {
+						mesh.normals = unityMesh.Normals;
+					}
+					if (unityMesh.Colors != null) {
+						mesh.colors = unityMesh.Colors;
+					}
+
+					objToSpawn.GetComponent<MeshFilter> ().mesh = mesh;
+					objToSpawn.GetComponent<MeshCollider> ().sharedMesh = mesh; //TODO Reduce mesh??
+
+					objToSpawn.transform.localPosition = new Vector3 (0, 0, 0);
+				}
+
+				//GameObject.Find("Camera").GetComponent<Camera>().GetComponent<Loader>().LoadFile (message);
 
 
-			//ThreadUtil.QueueOnMainThread(()=>{
+				//ThreadUtil.QueueOnMainThread(()=>{
 				//for (int i = 0; i < meshNode.transform.childCount; i++)
 				//{
-					//Destroy(meshNode.transform.GetChild(i).gameObject);
+				//Destroy(meshNode.transform.GetChild(i).gameObject);
 				//}
 
-			//});
+				//});
+			}
 		}
-	}
 
-	void OnApplicationQuit ()
-	{
-		listener.Stop ();
-		listener = null;
-	}
-
-	private string getMessage(Socket soc) {
-		byte[] b = new byte[255];
-		int k = soc.Receive (b);
-		StringBuilder str = new StringBuilder();
-		for (int i = 0; i < k; i++) {
-			str.Append(Convert.ToChar (b [i]));
+		void OnApplicationQuit ()
+		{
+			listener.Stop ();
+			listener = null;
 		}
-		return str.ToString();
+
+		private string getMessage (Socket soc)
+		{
+			byte[] b = new byte[255];
+			int k = soc.Receive (b);
+			StringBuilder str = new StringBuilder ();
+			for (int i = 0; i < k; i++) {
+				str.Append (Convert.ToChar (b [i]));
+			}
+			return str.ToString ();
+		}
 	}
 }

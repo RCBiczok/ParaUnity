@@ -18,15 +18,6 @@ public class Loader : MonoBehaviour
 	private bool loaded = false;
 	private volatile string Path = "";
 
-
-	// Use this for initialization
-	void Start ()
-	{
-		//LoadFile ("/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/simple/Beam_Tet4_NElement=24_0.x3d");
-		//LoadFile ("/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/liver_colored/liver_colored.x3d");
-		LoadFile ("/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/paraview_tutorial_data/disk_out_ref/disk_out_ref.x3d");
-	}
-	
 	// Update is called once per frame
 	void Update ()
 	{

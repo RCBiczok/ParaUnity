@@ -27,8 +27,18 @@ IF(PARAVIEW_BUILD_QT_GUI)
                       Unity3D.cxx)
 ENDIF()
 
+get_cmake_property(_variableNames VARIABLES)
+foreach (_variableName ${_variableNames})
+message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
 TARGET_LINK_LIBRARIES (Unity3D
   LINK_PRIVATE
-    vtkRenderingFreeType
-    vtkIOExport 
+#    vtkRenderingFreeType
+#    vtkPVAnimation
+#    vtkPVServerManagerApplication
+#    vtkPVApplicationCore
+#    vtkPVServerManagerCore
+    pqApplicationComponents
+    vtkIOExport
 )

@@ -1,6 +1,7 @@
 #ifndef Unity3D_h
 #define Unity3D_h
 
+#include <QDir>
 #include <QProcess>
 #include <QTcpSocket>
 #include <QActionGroup>
@@ -14,6 +15,8 @@ public:
 private:
     QProcess* unityPlayerProcess;
     QTcpSocket* socket;
+    int port;
+    QDir playerWorkingDir;
     void showInUnityPlayer(pqServerManagerModel* sm);
     void exportToUnityEditor(pqServerManagerModel* sm);
 public slots:
