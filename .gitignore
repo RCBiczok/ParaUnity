@@ -1,9 +1,5 @@
 # CMake
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
 Makefile
-cmake_install.cmake
 install_manifest.txt
 build
 
@@ -17,7 +13,6 @@ obj/
 *.userprefs
 *.csproj
 *.pidb
-*.suo
 *.sln
 *.user
 *.unityproj
@@ -31,4 +26,3 @@ ehthumbs.db
 Thumbs.db
 
 #eclipse project files
-.project

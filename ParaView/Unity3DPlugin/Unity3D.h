@@ -15,7 +15,8 @@ public:
 private:
     QProcess* unityPlayerProcess;
     int port;
-    QDir playerWorkingDir;
+    QString workingDir;
+    QString playerWorkingDir;
     void showInUnityPlayer(pqServerManagerModel* sm);
     void exportToUnityEditor(pqServerManagerModel* sm);
 public slots:

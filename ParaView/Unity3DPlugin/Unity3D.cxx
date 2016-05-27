@@ -29,11 +29,65 @@
 #include "pqRenderView.h"
 #include "pqServer.h"
 
+#ifndef Q_OS_WIN32
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
 #include "LoadingSplashScreen.h"
 
 #define UNITY_PLAYER_ACTION "UNITY_PLAYER_ACTION"
 
 #define UNITY_EDITOR_ACTION "UNITY_EDITOR_ACTION"
+
+// https://gist.github.com/ssendeavour/7324701
+static bool copyRecursively(const QString &srcFilePath,
+                            const QString &tgtFilePath) {
+  QFileInfo srcFileInfo(srcFilePath);
+  if (srcFileInfo.isDir()) {
+    QDir targetDir(tgtFilePath);
+    targetDir.cdUp();
+    if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName()))
+      return false;
+    QDir sourceDir(srcFilePath);
+    QStringList fileNames =
+        sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot |
+                            QDir::Hidden | QDir::System);
+    foreach (const QString &fileName, fileNames) {
+      const QString newSrcFilePath = srcFilePath + QLatin1Char('/') + fileName;
+      const QString newTgtFilePath = tgtFilePath + QLatin1Char('/') + fileName;
+      if (!copyRecursively(newSrcFilePath, newTgtFilePath))
+        return false;
+    }
+  } else {
+    if (!QFile::copy(srcFilePath, tgtFilePath))
+      return false;
+  }
+  return true;
+}
+
+static QString getUnityPlayerBinary(QString const &workingDir) {
+#ifdef Q_OS_MAC
+  QString bundleName = "unity_player.app";
+  QString bundlePath = workingDir + "/" + bundleName;
+  QDir bundleDir(bundlePath);
+  qDebug() << bundlePath;
+  if (!bundleDir.exists()) {
+    if (!copyRecursively(":/Unity3D/platform/" + bundleName, bundlePath)) {
+      qFatal("Unable to export player executable");
+    }
+  }
+  QString exePath = bundlePath + "/Contents/MacOS/unity_player";
+  int check = chmod(exePath.toStdString().c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IWOTH);
+  if(check) {
+      qFatal("Unable to change permisions for player executable");
+  }
+  return exePath;
+#elif Q_OS_WIN32
+#else
+#error Unsupported platform
+#endif
+}
 
 static int getPortNumberFrom(QString playerWorkingDir) {
   QFileInfoList files = QDir(playerWorkingDir).entryInfoList();
@@ -73,6 +127,8 @@ static int findPortFile(QString playerWorkingDir) {
 
 //-----------------------------------------------------------------------------
 Unity3D::Unity3D(QObject *p) : QActionGroup(p), unityPlayerProcess(NULL) {
+  this->workingDir = QDir::tempPath() + "/Unity3DPlugin";
+
   // Player mode
   QIcon embeddedActionIcon(QPixmap(":/Unity3D/resources/player.png"));
   embeddedActionIcon.addPixmap(
@@ -134,27 +190,23 @@ void Unity3D::showInUnityPlayer(pqServerManagerModel *sm) {
       this->unityPlayerProcess->pid() <= 0) {
     this->unityPlayerProcess = new QProcess(this);
 
-    QString file = "/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/Unity/"
-                   "ParaViewEmbeddedPlayer/build/unity_player.app/Contents/"
-                   "MacOS/unity_player";
-    this->unityPlayerProcess->start(file);
+    QString processBinary = getUnityPlayerBinary(this->workingDir);
+    this->unityPlayerProcess->start(processBinary);
     if (!unityPlayerProcess->waitForStarted()) {
       QMessageBox::critical(NULL, tr("Unity Player Error"),
                             tr("Player process could not be executed"));
       return;
     }
 
-    this->playerWorkingDir = QDir(QDir::tempPath() + "/Unity3DPlugin/Embedded/" +
-        QString::number(this->unityPlayerProcess->pid()));
+    this->playerWorkingDir = this->workingDir + "/Embedded/" +
+                             QString::number(this->unityPlayerProcess->pid());
 
-    qDebug() <<  this->playerWorkingDir.absolutePath();
-      
-    this->port = findPortFile(playerWorkingDir.absolutePath());
+    this->port = findPortFile(playerWorkingDir);
   }
 
   vtkSmartPointer<vtkX3DExporter> exporter =
       vtkSmartPointer<vtkX3DExporter>::New();
-  QString exportFile = this->playerWorkingDir.filePath("paraview_output.x3d");
+  QString exportFile = this->playerWorkingDir + "/paraview_output.x3d";
 
   exporter->SetInput(renderProxy->GetRenderWindow());
   exporter->SetFileName(exportFile.toLatin1());
