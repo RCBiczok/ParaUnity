@@ -8,9 +8,9 @@ ENDIF()
 IF(PARAVIEW_BUILD_QT_GUI)
   # We need to wrap for Qt stuff such as signals/slots etc. to work correctly.
   IF (PARAVIEW_QT_VERSION VERSION_GREATER "4")
-    QT5_WRAP_CPP(MOC_SRCS Unity3D.h)
+    QT5_WRAP_CPP(MOC_SRCS Unity3D.h LoadingSplashScreen.h)
   ELSE ()
-    QT4_WRAP_CPP(MOC_SRCS Unity3D.h)
+    QT4_WRAP_CPP(MOC_SRCS Unity3D.h LoadingSplashScreen.h)
   ENDIF ()
 
   # This is a macro for adding QActionGroup subclasses automatically as toolbars.
@@ -26,11 +26,6 @@ IF(PARAVIEW_BUILD_QT_GUI)
                       SOURCES ${MOC_SRCS} ${IFACE_SRCS}
                       Unity3D.cxx)
 ENDIF()
-
-get_cmake_property(_variableNames VARIABLES)
-foreach (_variableName ${_variableNames})
-message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
 
 TARGET_LINK_LIBRARIES (Unity3D
   LINK_PRIVATE

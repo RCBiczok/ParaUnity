@@ -14,7 +14,6 @@ public:
     Unity3D(QObject* p);
 private:
     QProcess* unityPlayerProcess;
-    QTcpSocket* socket;
     int port;
     QDir playerWorkingDir;
     void showInUnityPlayer(pqServerManagerModel* sm);
@@ -23,5 +22,5 @@ public slots:
     void onAction(QAction* a);
 };
 
-#endif
+#endif // Unity3D_h
 

@@ -1,5 +1,6 @@
 <RCC>
-    <qresource prefix="/Unity3D" >
+    <qresource prefix="/Unity3D">
+    	<file>resources/loader.gif</file>
         <file>resources/editor.png</file>
         <file>resources/editor_selected.png</file>
         <file>resources/player.png</file>

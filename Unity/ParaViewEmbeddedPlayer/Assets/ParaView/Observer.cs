@@ -24,12 +24,14 @@
 			int port = ((IPEndPoint)listener.LocalEndpoint).Port;
 			Debug.Log ("Port: " + port);
 
-			string embeddedPlayerPath = Path.GetTempPath () + "/Unity3DPlugin/Embedded/" 
-				+ System.Diagnostics.Process.GetCurrentProcess ().Id;
+			string embeddedPlayerPath = Path.GetTempPath () + "/Unity3DPlugin/Embedded/"
+			                            + System.Diagnostics.Process.GetCurrentProcess ().Id;
 			Directory.CreateDirectory (embeddedPlayerPath);
 
 			string portFile = embeddedPlayerPath + "/port" + port;
-			using (File.Create(portFile)) ;
+			using (File.Create (portFile)) {
+			}
+			;
 		}
 
 		public void Update ()
@@ -37,14 +39,16 @@
 			if (listener.Pending ()) {
 				Socket soc = listener.AcceptSocket ();
 
-				//Debug.Log ("Connection accepted from " + soc.RemoteEndPoint);
-
 				string message = getMessage (soc);
-				Debug.Log (message);
-
+				Debug.Log ("File:" + message);
+				soc.Disconnect (false);
 				string path = message;
 				X3DLoader loader = new X3DLoader ();
 				List<X3DMesh> meshes = loader.Load (path);
+
+				for (int i = 0; i < meshNode.transform.childCount; i++) {
+					Destroy (meshNode.transform.GetChild (i).gameObject);
+				}
 
 				foreach (X3DMesh unityMesh in meshes) {
 					//Spawn object
@@ -79,17 +83,6 @@
 
 					objToSpawn.transform.localPosition = new Vector3 (0, 0, 0);
 				}
-
-				//GameObject.Find("Camera").GetComponent<Camera>().GetComponent<Loader>().LoadFile (message);
-
-
-				//ThreadUtil.QueueOnMainThread(()=>{
-				//for (int i = 0; i < meshNode.transform.childCount; i++)
-				//{
-				//Destroy(meshNode.transform.GetChild(i).gameObject);
-				//}
-
-				//});
 			}
 		}
 
@@ -101,7 +94,7 @@
 
 		private string getMessage (Socket soc)
 		{
-			byte[] b = new byte[255];
+			byte[] b = new byte[soc.Available];
 			int k = soc.Receive (b);
 			StringBuilder str = new StringBuilder ();
 			for (int i = 0; i < k; i++) {
