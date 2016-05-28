@@ -1,7 +1,8 @@
 ﻿namespace ParaUnity
 {
 	using UnityEngine;
-	using ParaUnity.X3D;
+	using X3D;
+    using System;
 	using System.Collections.Generic;
 
 	public class TestLoader : MonoBehaviour
@@ -13,8 +14,7 @@
 		// Use this for initialization
 		void Start ()
 		{
-	
-			string path = "/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/paraview_tutorial_data/disk_out_ref/disk_out_ref.x3d";
+			string path = getTestX2DFile("paraview_tutorial_data/disk_out_ref/disk_out_ref.x3d");
 			X3DLoader loader = new X3DLoader ();
 			List<X3DMesh> meshes = loader.Load (path);
 
@@ -52,5 +52,10 @@
 				objToSpawn.transform.localPosition = new Vector3 (0, 0, 0);
 			}
 		}
-	}
+
+        private string getTestX2DFile(string testFile)
+        {
+            return Environment.CurrentDirectory + "/../../TestMaterials/" + testFile;
+        }
+    }
 }

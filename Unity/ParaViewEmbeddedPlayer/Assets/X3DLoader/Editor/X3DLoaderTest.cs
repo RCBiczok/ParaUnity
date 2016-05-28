@@ -1,7 +1,6 @@
 ﻿namespace ParaUnity.X3D
 {
 	using System;
-	using UnityEngine;
 	using NUnit.Framework;
 
 	[TestFixture]

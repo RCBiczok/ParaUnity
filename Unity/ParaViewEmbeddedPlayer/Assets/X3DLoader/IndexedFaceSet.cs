@@ -73,11 +73,6 @@
 
 			for (int faceIdx = 0; faceIdx < this.Faces.Count; faceIdx++) {
 
-				foreach (int vertexId in this.Faces [faceIdx]) {
-					Console.Write (vertexId + ",");
-				}
-				Console.WriteLine ();
-
 				//X3D standard requires that the faces are planar and do not have "holes"
 
 				Vector2[] prohjectedVertices = ProjectorVerticesOf (this.Faces [faceIdx], 
