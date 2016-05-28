@@ -79,14 +79,12 @@
 
 			foreach (X3DMesh unityMesh in meshes) {
 				//Spawn object
-				//TODO
-				GameObject objToSpawn = new GameObject ("TODO");
+				GameObject objToSpawn = new GameObject ();
 
 				objToSpawn.transform.parent = meshNode.transform;
 
 				//Add Components
 				objToSpawn.AddComponent<MeshFilter> ();
-				//objToSpawn.AddComponent<MeshCollider> (); //TODO need to much time --> own thread?? Dont work in Unity!!
 				objToSpawn.AddComponent<MeshRenderer> ();
 
 				//Add material
@@ -106,7 +104,6 @@
 				}
 
 				objToSpawn.GetComponent<MeshFilter> ().mesh = mesh;
-				//objToSpawn.GetComponent<MeshCollider> ().sharedMesh = mesh; //TODO Reduce mesh??
 
 				objToSpawn.transform.localPosition = new Vector3 (0, 0, 0);
 			}
