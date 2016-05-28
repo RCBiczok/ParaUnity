@@ -12,10 +12,12 @@
 	public class Loader : MonoBehaviour
 	{
 
+		private static X3DLoader LOADER = new X3DLoader ();
+
 		public GameObject meshNode;
 		public Material defaultMaterial;
 
-		TcpListener listener;
+		private TcpListener listener;
 
 		public void Start ()
 		{
@@ -39,50 +41,10 @@
 			if (listener.Pending ()) {
 				Socket soc = listener.AcceptSocket ();
 
-				string message = getMessage (soc);
-				Debug.Log ("File:" + message);
+				string importDir = GetImportDir (soc);
+				Debug.Log ("Import dir:" + importDir);
 				soc.Disconnect (false);
-				string path = message;
-				X3DLoader loader = new X3DLoader ();
-				List<X3DMesh> meshes = loader.Load (path);
-
-				for (int i = 0; i < meshNode.transform.childCount; i++) {
-					Destroy (meshNode.transform.GetChild (i).gameObject);
-				}
-
-				foreach (X3DMesh unityMesh in meshes) {
-					//Spawn object
-					//TODO
-					GameObject objToSpawn = new GameObject ("TODO");
-
-					objToSpawn.transform.parent = meshNode.transform;
-
-					//Add Components
-					objToSpawn.AddComponent<MeshFilter> ();
-					objToSpawn.AddComponent<MeshCollider> (); //TODO need to much time --> own thread?? Dont work in Unity!!
-					objToSpawn.AddComponent<MeshRenderer> ();
-
-					//Add material
-					objToSpawn.GetComponent<MeshRenderer> ().material = defaultMaterial;
-					objToSpawn.GetComponent<MeshRenderer> ().material.shader = Shader.Find ("Standard (Vertex Color)");
-
-					//Create Mesh
-					Mesh mesh = new Mesh ();
-					//mesh.name = unityMesh.Name;
-					mesh.vertices = unityMesh.Vertices;
-					mesh.triangles = unityMesh.Triangles;
-					if (unityMesh.Normals != null) {
-						mesh.normals = unityMesh.Normals;
-					}
-					if (unityMesh.Colors != null) {
-						mesh.colors = unityMesh.Colors;
-					}
-
-					objToSpawn.GetComponent<MeshFilter> ().mesh = mesh;
-					objToSpawn.GetComponent<MeshCollider> ().sharedMesh = mesh; //TODO Reduce mesh??
-
-					objToSpawn.transform.localPosition = new Vector3 (0, 0, 0);
-				}
+				ImportFrom(importDir, meshNode, defaultMaterial);
 			}
 		}
 
@@ -92,7 +54,7 @@
 			listener = null;
 		}
 
-		private string getMessage (Socket soc)
+		private string GetImportDir (Socket soc)
 		{
 			byte[] b = new byte[soc.Available];
 			int k = soc.Receive (b);
@@ -101,6 +63,53 @@
 				str.Append (Convert.ToChar (b [i]));
 			}
 			return str.ToString ();
+		}
+
+		public static void ImportFrom(string importDir, GameObject meshNode, Material defaultMaterial) {
+			ImportMesh(importDir+"/frame_0.x3d", meshNode, defaultMaterial);
+		}
+
+		public static void ImportMesh(string file, GameObject meshNode, Material defaultMaterial)
+		{
+			List<X3DMesh> meshes = LOADER.Load (file);
+
+			for (int i = 0; i < meshNode.transform.childCount; i++) {
+				Destroy (meshNode.transform.GetChild (i).gameObject);
+			}
+
+			foreach (X3DMesh unityMesh in meshes) {
+				//Spawn object
+				//TODO
+				GameObject objToSpawn = new GameObject ("TODO");
+
+				objToSpawn.transform.parent = meshNode.transform;
+
+				//Add Components
+				objToSpawn.AddComponent<MeshFilter> ();
+				//objToSpawn.AddComponent<MeshCollider> (); //TODO need to much time --> own thread?? Dont work in Unity!!
+				objToSpawn.AddComponent<MeshRenderer> ();
+
+				//Add material
+				objToSpawn.GetComponent<MeshRenderer> ().material = defaultMaterial;
+				objToSpawn.GetComponent<MeshRenderer> ().material.shader = Shader.Find ("Standard (Vertex Color)");
+
+				//Create Mesh
+				Mesh mesh = new Mesh ();
+				//mesh.name = unityMesh.Name;
+				mesh.vertices = unityMesh.Vertices;
+				mesh.triangles = unityMesh.Triangles;
+				if (unityMesh.Normals != null) {
+					mesh.normals = unityMesh.Normals;
+				}
+				if (unityMesh.Colors != null) {
+					mesh.colors = unityMesh.Colors;
+				}
+
+				objToSpawn.GetComponent<MeshFilter> ().mesh = mesh;
+				//objToSpawn.GetComponent<MeshCollider> ().sharedMesh = mesh; //TODO Reduce mesh??
+
+				objToSpawn.transform.localPosition = new Vector3 (0, 0, 0);
+			}
 		}
 	}
 }
