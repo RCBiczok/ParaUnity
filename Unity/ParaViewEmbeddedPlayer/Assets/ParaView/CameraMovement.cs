@@ -3,20 +3,39 @@
 using System;
 using System.Collections;
 
-public class CameraMovement : MonoBehaviour
+namespace ParaUnity
 {
 
-	private float speed = 1.5F;
-	private float rotationSpeed = 100.0F;
-
-	// Update is called once per frame
-	void Update ()
-	{
-		float translation = Input.GetAxis("Vertical") * speed;
-		float rotation = Input.GetAxis("Horizontal") * rotationSpeed;
-		translation *= Time.deltaTime;
-		rotation *= Time.deltaTime;
-		transform.Translate(0, 0, translation);
-		transform.Rotate(0, rotation, 0);
+	public enum MouseButton {
+		Left = 0,
+		Right = 1,
+		Middle = 2,
 	}
+
+	public class CameraMovement : MonoBehaviour
+	{
+
+		private float speed = 4F;
+
+		public Vector3 Target { get; set; }
+
+		private bool clickAndHould = false;
+
+		// Update is called once per frame
+		void Update ()
+		{
+			if (Input.GetMouseButtonDown ((int)MouseButton.Left)) {
+				this.clickAndHould = true;
+			}
+			if (Input.GetMouseButtonUp ((int)MouseButton.Left)) {
+				this.clickAndHould = false;
+			}
+			if (this.clickAndHould) {
+				Debug.Log (Input.GetAxis ("Mouse X"));
+				Debug.Log (Input.GetAxis ("Mouse Y"));
+				this.transform.RotateAround (Target, Vector3.up, Input.GetAxis("Mouse X")*speed);
+			}
+		}
+	}
+
 }

@@ -27,7 +27,6 @@
 		override public void Convert (GameObject parent) {
 			GameObject camObj = new GameObject (this.GetType().Name);
 			camObj.transform.parent = parent.transform;
-			camObj.AddComponent<CameraMovement> ();
 			Camera cam = camObj.AddComponent<Camera> ();
 			cam.clearFlags = CameraClearFlags.Color;
 			if (this.FieldOfView != null) {
@@ -48,6 +47,11 @@
 					camObj.transform.Rotate (Orientation.Axis, Orientation.Angle * Mathf.Rad2Deg);
 				} 
 			}*/
+
+			CameraMovement m = camObj.AddComponent<CameraMovement> ();
+			if (this.CenterOfRotation != null) {
+				m.Target = this.CenterOfRotation.Value;
+			}
 		}
 	}
 
