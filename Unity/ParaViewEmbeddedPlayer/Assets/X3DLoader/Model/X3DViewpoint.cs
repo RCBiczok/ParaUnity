@@ -52,6 +52,7 @@
 			if (this.CenterOfRotation != null) {
 				m.Target = this.CenterOfRotation.Value;
 			}
+
 		}
 	}
 

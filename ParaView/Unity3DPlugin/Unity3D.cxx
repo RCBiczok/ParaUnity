@@ -57,7 +57,7 @@ static QString getUnityPlayerBinary(QString const &workingDir) {
 #else
 	QString targetFile = "unity_player";
 #endif
-
+    
 	for (unsigned int i = 0; i < localPlugins->GetNumberOfPlugins(); i++) {
 		QString pluginName(localPlugins->GetPluginName(i));
 		if (pluginName == "Unity3D") {
@@ -192,7 +192,7 @@ void Unity3D::showInUnityPlayer(pqServerManagerModel *sm) {
 	socket->connectToHost("127.0.0.1", this->port);
 	if (!socket->waitForConnected()) {
 		QMessageBox::critical(NULL, tr("Unity Player Error"),
-			tr("Unable to communicate to PLayer process"));
+			tr("Unable to communicate to Player process"));
 		return;
 	}
 	socket->write(data);
