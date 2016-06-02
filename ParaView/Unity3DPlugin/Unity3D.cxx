@@ -42,32 +42,7 @@
 
 #define UNITY_EDITOR_ACTION "UNITY_EDITOR_ACTION"
 
-// https://gist.github.com/ssendeavour/7324701
-static bool copyRecursively(const QString &srcFilePath,
-	const QString &tgtFilePath) {
-	QFileInfo srcFileInfo(srcFilePath);
-	if (srcFileInfo.isDir()) {
-		QDir targetDir(tgtFilePath);
-		targetDir.cdUp();
-		if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName()))
-			return false;
-		QDir sourceDir(srcFilePath);
-		QStringList fileNames =
-			sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot |
-				QDir::Hidden | QDir::System);
-		foreach(const QString &fileName, fileNames) {
-			const QString newSrcFilePath = srcFilePath + QLatin1Char('/') + fileName;
-			const QString newTgtFilePath = tgtFilePath + QLatin1Char('/') + fileName;
-			if (!copyRecursively(newSrcFilePath, newTgtFilePath))
-				return false;
-		}
-	}
-	else {
-		if (!QFile::copy(srcFilePath, tgtFilePath))
-			return false;
-	}
-	return true;
-}
+
 
 static QString getUnityPlayerBinary(QString const &workingDir) {
 
@@ -197,6 +172,8 @@ void Unity3D::showInUnityPlayer(pqServerManagerModel *sm) {
 
 		this->port = findPortFile(playerWorkingDir);
 	}
+
+	QString exportDir = this->playerWorkingDir + "/paraview_output";
 
 	vtkSmartPointer<vtkX3DExporter> exporter =
 		vtkSmartPointer<vtkX3DExporter>::New();

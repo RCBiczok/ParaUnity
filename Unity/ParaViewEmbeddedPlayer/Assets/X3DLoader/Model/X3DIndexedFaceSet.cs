@@ -1,13 +1,12 @@
 ﻿namespace ParaUnity.X3D
 {
 	using System;
-	using System.Globalization;
 	using System.Linq;
 	using System.Xml.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
 
-	internal class IndexedFaceSet
+	public class X3DIndexedFaceSet : X3DNode
 	{
 
 		public bool NormalPerVertex { get; private set; }
@@ -22,7 +21,7 @@
 
 		public List<List<int>> Faces { get; private set; }
 
-		public IndexedFaceSet (bool normalPerVertex,
+		public X3DIndexedFaceSet (bool normalPerVertex,
 		                       bool colorPerVertex,
 		                       List<Vector3> vertices, 
 		                       List<Vector3> normals,
@@ -39,33 +38,48 @@
 			this.Faces = faces;
 		}
 
-		public static explicit operator X3DMesh (IndexedFaceSet faceSet)
+
+
+		override public void Convert (GameObject parent) 
 		{
-			IndexedFaceSet preparedFaceSet = faceSet.ToTriangulatedFaceSet ().
+			X3DIndexedFaceSet preparedFaceSet = this.ToTriangulatedFaceSet ().
 				ToVertexOrientedFaceSet ();
 
+			//Create Mesh
+			Mesh mesh = new Mesh ();
+			mesh.vertices = preparedFaceSet.Vertices.ToArray();
 			int[] triangles = new int[preparedFaceSet.Faces.Count * 3];
 			for (int i = 0; i < preparedFaceSet.Faces.Count; i++) {
 				triangles [i * 3] = preparedFaceSet.Faces [i] [0];
 				triangles [i * 3 + 1] = preparedFaceSet.Faces [i] [1];
 				triangles [i * 3 + 2] = preparedFaceSet.Faces [i] [2];
 			}
-			Vector3[] normals = null;
+			mesh.triangles = triangles;
 			if (preparedFaceSet.Normals != null) {
-				normals = preparedFaceSet.Normals.ToArray ();
+				mesh.normals = preparedFaceSet.Normals.ToArray();
 			}
-			Color[] colors = null;
 			if (preparedFaceSet.Colors != null) {
-				colors = preparedFaceSet.Colors.ToArray ();
+				mesh.colors = preparedFaceSet.Colors.ToArray();
 			}
-				
-			return new X3DMesh (preparedFaceSet.Vertices.ToArray (), 
-				normals, 
-				colors, 
-				triangles);
+
+			//Spawn object
+			GameObject objToSpawn = new GameObject ();
+
+			objToSpawn.transform.parent = parent.transform;
+
+			//Add Components
+			objToSpawn.AddComponent<MeshFilter> ();
+			objToSpawn.AddComponent<MeshRenderer> ();
+
+			//Add material
+
+			objToSpawn.GetComponent<MeshRenderer> ().material = __defaultMaterial;
+			objToSpawn.GetComponent<MeshRenderer> ().material.shader = Shader.Find ("Standard (Vertex Color)");
+
+			objToSpawn.GetComponent<MeshFilter> ().mesh = mesh;
 		}
 
-		private IndexedFaceSet ToTriangulatedFaceSet ()
+		private X3DIndexedFaceSet ToTriangulatedFaceSet ()
 		{
 			LinkedList<List<int>> triangles = new LinkedList<List<int>> ();
 			LinkedList<Vector3> newNormals = new LinkedList<Vector3> ();
@@ -123,7 +137,7 @@
 				colors = new List<Color> (newColors);
 			}
 
-			return new IndexedFaceSet (this.NormalPerVertex, 
+			return new X3DIndexedFaceSet (this.NormalPerVertex, 
 				this.ColorPerVertex, 
 				this.Vertices, 
 				normals, 
@@ -136,7 +150,7 @@
 		/// It will duplicate colors and normals if necessary.
 		/// </summary>
 		/// <returns>The face set where the condition normalPerVertex=colorPerVertex=true holds.</returns>
-		private IndexedFaceSet ToVertexOrientedFaceSet ()
+		private X3DIndexedFaceSet ToVertexOrientedFaceSet ()
 		{
 			if (this.ColorPerVertex && this.NormalPerVertex
 			    || (!this.ColorPerVertex && this.Colors == null)
@@ -206,7 +220,7 @@
 				colors.AddRange (addedColors);
 			}
 
-			return new IndexedFaceSet (true, true, vertices, normals, colors, faces);
+			return new X3DIndexedFaceSet (true, true, vertices, normals, colors, faces);
 		}
 
 		private bool IsFacingInRightDirection (Vector3 aOld, Vector3 bOld, Vector3 cOld,
@@ -237,63 +251,29 @@
 			}
 			return new List<Vector2> (projectedVectors).ToArray ();
 		}
-
-		public void Dump ()
-		{
-			Console.WriteLine ("Color per vertex:" + this.ColorPerVertex);
-			Console.WriteLine ("Normal per vertex:" + this.NormalPerVertex);
-			Console.Write ("Vertices (" + this.Vertices.Count + "):");
-			foreach (Vector3 vec in this.Vertices) {
-				Console.Write (vec + ",");
-			}
-			Console.WriteLine ();
-			if (this.Normals != null) {
-				Console.Write ("Normals (" + this.Normals.Count + "):");
-				foreach (Vector3 vec in this.Normals) {
-					Console.Write (vec + ",");
-				}
-				Console.WriteLine ();
-			}
-			if (this.Colors != null) {
-				Console.Write ("Colors (" + this.Colors.Count + "):");
-				foreach (Color col in this.Colors) {
-					Console.Write (col + ",");
-				}
-				Console.WriteLine ();
-			}
-			Console.Write ("Faces (" + this.Faces.Count + "):");
-			foreach (List<int> face in this.Faces) {
-				Console.Write ("(");
-				foreach (int idx  in face) {
-					Console.Write (idx);
-					Console.Write (",");
-				}
-				Console.Write ("),");
-			}
-			Console.WriteLine ();
-		}
-
 	}
 
-	internal class IndexedFaceSetHandler
+	public class X3DIndexedFaceSetHandler : X3DHandler
 	{
 
-		public X3DMesh Parse (XNamespace df, XElement request)
-		{
-			return (X3DMesh)new IndexedFaceSet (
-				(bool)request.Attribute (df + "normalPerVertex"),
-				(bool)request.Attribute (df + "colorPerVertex"),
-				ParseVertices (df, request),
-				ParseNormals (df, request),
-				ParseColors (df, request), 
-				ParseFaces (df, request)
-			);
-
+		public X3DIndexedFaceSetHandler() : base("IndexedFaceSet") {
 		}
 
-		private List<List<int>>  ParseFaces (XNamespace df, XElement request)
+		public override X3DNode Parse (XElement request)
 		{
-			string coordIndex = (string)request.Attribute (df + "coordIndex");
+			return new X3DIndexedFaceSet (
+				(bool)request.Attribute ("normalPerVertex"),
+				(bool)request.Attribute ("colorPerVertex"),
+				ParseVertices (request),
+				ParseNormals (request),
+				ParseColors (request), 
+				ParseFaces (request)
+			);
+		}
+
+		private List<List<int>>  ParseFaces (XElement request)
+		{
+			string coordIndex = (string)request.Attribute ("coordIndex");
 			string[] facesString = coordIndex.Split (new[] { "-1" }, StringSplitOptions.None);
 			List<List<int>> faces = new List<List<int>> (facesString.Length - 1);
 			for (int i = 0; i < faces.Capacity; i++) {
@@ -307,21 +287,21 @@
 			return faces;
 		}
 
-		private List<Vector3> ParseVertices (XNamespace df, XElement request)
+		private List<Vector3> ParseVertices (XElement request)
 		{
-			return ParseVertexBased (request.Element (df + "Coordinate"), null, "point");
+			return ParseVertexBased (request.Element ("Coordinate"), null, "point");
 		}
 
-		private List<Vector3> ParseNormals (XNamespace df, XElement request)
+		private List<Vector3> ParseNormals (XElement request)
 		{
-			return ParseVertexBased (request.Element (df + "Normal"), 
-				(string)request.Attribute (df + "normalIndex"), "vector");
+			return ParseVertexBased (request.Element ("Normal"), 
+				(string)request.Attribute ("normalIndex"), "vector");
 		}
 
-		private List<Color> ParseColors (XNamespace df, XElement request)
+		private List<Color> ParseColors (XElement request)
 		{
-			return ParseListOfTuples (request.Element (df + "Color"), 
-				(string)request.Attribute (df + "colorIndex"), "color", (colorChannels) => {
+			return ParseListOfTuples (request.Element ("Color"), 
+				(string)request.Attribute ("colorIndex"), "color", (colorChannels) => {
 				return new Color (ParseFloat (colorChannels [0]),
 					ParseFloat (colorChannels [1]),
 					ParseFloat (colorChannels [2]), 1);
@@ -365,11 +345,6 @@
 				return orderedVertices;
 			}
 			return vertices;
-		}
-
-		private float ParseFloat (string floatString)
-		{
-			return float.Parse (floatString, CultureInfo.InvariantCulture);
 		}
 	}
 

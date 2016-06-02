@@ -15,7 +15,7 @@
 		private static X3DLoader LOADER = new X3DLoader ();
 
 		public GameObject meshNode;
-		public Material defaultMaterial;
+		public UnityEngine.Material defaultMaterial;
 
 		private TcpListener listener;
 
@@ -41,10 +41,14 @@
 			if (listener.Pending ()) {
 				Socket soc = listener.AcceptSocket ();
 
+				for (int i = 0; i < meshNode.transform.childCount; i++) {
+					Destroy (meshNode.transform.GetChild (i).gameObject);
+				}
+
 				string importDir = GetImportDir (soc);
 				Debug.Log ("Import dir:" + importDir);
 				soc.Disconnect (false);
-				ImportFrom(importDir, meshNode, defaultMaterial);
+				ImportMesh(importDir, meshNode, defaultMaterial);
 			}
 		}
 
@@ -65,48 +69,12 @@
 			return str.ToString ();
 		}
 
-		public static void ImportFrom(string importDir, GameObject meshNode, Material defaultMaterial) {
-			ImportMesh(importDir+"/frame_0.x3d", meshNode, defaultMaterial);
-		}
-
 		public static void ImportMesh(string file, GameObject meshNode, Material defaultMaterial)
 		{
-			List<X3DMesh> meshes = LOADER.Load (file);
+			X3DNode.__defaultMaterial = defaultMaterial;
+			GameObject ob = (GameObject)LOADER.Load (file);
 
-			for (int i = 0; i < meshNode.transform.childCount; i++) {
-				Destroy (meshNode.transform.GetChild (i).gameObject);
-			}
-
-			foreach (X3DMesh unityMesh in meshes) {
-				//Spawn object
-				GameObject objToSpawn = new GameObject ();
-
-				objToSpawn.transform.parent = meshNode.transform;
-
-				//Add Components
-				objToSpawn.AddComponent<MeshFilter> ();
-				objToSpawn.AddComponent<MeshRenderer> ();
-
-				//Add material
-				objToSpawn.GetComponent<MeshRenderer> ().material = defaultMaterial;
-				objToSpawn.GetComponent<MeshRenderer> ().material.shader = Shader.Find ("Standard (Vertex Color)");
-
-				//Create Mesh
-				Mesh mesh = new Mesh ();
-				//mesh.name = unityMesh.Name;
-				mesh.vertices = unityMesh.Vertices;
-				mesh.triangles = unityMesh.Triangles;
-				if (unityMesh.Normals != null) {
-					mesh.normals = unityMesh.Normals;
-				}
-				if (unityMesh.Colors != null) {
-					mesh.colors = unityMesh.Colors;
-				}
-
-				objToSpawn.GetComponent<MeshFilter> ().mesh = mesh;
-
-				objToSpawn.transform.localPosition = new Vector3 (0, 0, 0);
-			}
+			ob.transform.parent = meshNode.transform;
 		}
 	}
 }
