@@ -21,8 +21,8 @@ private:
     void exportToUnityEditor(pqServerManagerModel* sm);
 public slots:
     void onAction(QAction* a);
-	bool sendMessage(QString message, int port);
-	void exportScene(pqServerManagerModel *sm, QString exportLocation, int port);
+	bool sendMessage(const QString&, int port);
+	void exportScene(pqServerManagerModel *sm, const QString& exportLocation, int port);
 };
 
 #endif // Unity3D_h

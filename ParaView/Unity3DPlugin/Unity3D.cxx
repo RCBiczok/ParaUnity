@@ -43,7 +43,7 @@
 
 //-----------------------------------------------------------------------------
 
-bool Unity3D::sendMessage(QString message, int port) {
+bool Unity3D::sendMessage(const QString& message, int port) {
 	QTcpSocket *socket = new QTcpSocket(this);
 	socket->connectToHost("127.0.0.1", port);
 	if (!socket->waitForConnected()) {
@@ -69,7 +69,7 @@ static quint64 getProcessID(const QProcess* proc) {
 
 //-----------------------------------------------------------------------------
 
-static QString getUnityPlayerBinary(QString const &workingDir) {
+static QString getUnityPlayerBinary(const QString& workingDir) {
 
 	pqPVApplicationCore* core = pqPVApplicationCore::instance();
 	pqPluginManager* pluginManager = core->getPluginManager();
@@ -98,7 +98,7 @@ static QString getUnityPlayerBinary(QString const &workingDir) {
 
 //-----------------------------------------------------------------------------
 
-static int getPortNumberFrom(QString playerWorkingDir) {
+static int getPortNumberFrom(const QString& playerWorkingDir) {
 	QFileInfoList files = QDir(playerWorkingDir).entryInfoList();
 	foreach(const QFileInfo &file, files) {
 		if (!file.isDir() && file.baseName().contains("port")) {
@@ -110,7 +110,7 @@ static int getPortNumberFrom(QString playerWorkingDir) {
 
 //-----------------------------------------------------------------------------
 
-bool fileExists(QString path) {
+bool fileExists(const QString& path) {
 	QFileInfo check_file(path);
 	// check if file exists and if yes: Is it really a file and no directory?
 	return (check_file.exists() && check_file.isFile());
@@ -118,7 +118,7 @@ bool fileExists(QString path) {
 
 //-----------------------------------------------------------------------------
 
-static bool removeDir(const QString & dirName)
+static bool removeDir(const QString& dirName)
 {
 	bool result = true;
 	QDir dir(dirName);
@@ -144,7 +144,7 @@ static bool removeDir(const QString & dirName)
 }
 
 //-----------------------------------------------------------------------------
-static int findPortFile(QString playerWorkingDir) {
+static int findPortFile(const QString& playerWorkingDir) {
 	/* Process startet, but we still
 	 * have to wait until Unity
 	 * initialization finished
@@ -172,7 +172,7 @@ static int findPortFile(QString playerWorkingDir) {
 
 //-----------------------------------------------------------------------------
 void Unity3D::exportScene(pqServerManagerModel *sm, 
-	QString exportLocation, int port) {
+	const QString& exportLocation, int port) {
 	QList<pqRenderView *> renderViews = sm->findItems<pqRenderView *>();
 	vtkSMRenderViewProxy *renderProxy = renderViews[0]->getRenderViewProxy();
 	vtkSmartPointer<vtkX3DExporter> exporter =
@@ -307,6 +307,7 @@ void Unity3D::exportToUnityEditor(pqServerManagerModel *sm) {
 	foreach(const QString &dir, QDir(exportLocations).entryList()) {
 		if (dir != "." && dir != "..") {
 			int port = dir.toInt();
+
 			if (sendMessage("TEST", port)) {
 				activeUnityInstances << port;
 			}
