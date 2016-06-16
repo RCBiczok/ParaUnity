@@ -31,9 +31,8 @@
 #include "pqRenderView.h"
 #include "pqServer.h"
 
-#ifndef Q_OS_WIN32
-#include <sys/stat.h>
-#include <sys/types.h>
+#ifdef Q_OS_WIN
+#include <windows.h>
 #endif
 
 #include "LoadingSplashScreen.h"
@@ -42,7 +41,33 @@
 
 #define UNITY_EDITOR_ACTION "UNITY_EDITOR_ACTION"
 
+//-----------------------------------------------------------------------------
 
+bool Unity3D::sendMessage(QString message, int port) {
+	QTcpSocket *socket = new QTcpSocket(this);
+	socket->connectToHost("127.0.0.1", port);
+	if (!socket->waitForConnected()) {
+		return false;
+	}
+	socket->write(QByteArray(message.toLatin1()));
+	socket->waitForBytesWritten();
+	socket->waitForDisconnected();
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+
+static quint64 getProcessID(const QProcess* proc) {
+
+#ifdef Q_WS_WIN
+	struct _PROCESS_INFORMATION* procinfo = proc->pid();
+	return procinfo ? procinfo->dwProcessId : 0;
+#else // other
+	return proc->pid();
+#endif // Q_WS_WIN
+}
+
+//-----------------------------------------------------------------------------
 
 static QString getUnityPlayerBinary(QString const &workingDir) {
 
@@ -71,6 +96,8 @@ static QString getUnityPlayerBinary(QString const &workingDir) {
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------
+
 static int getPortNumberFrom(QString playerWorkingDir) {
 	QFileInfoList files = QDir(playerWorkingDir).entryInfoList();
 	foreach(const QFileInfo &file, files) {
@@ -81,6 +108,42 @@ static int getPortNumberFrom(QString playerWorkingDir) {
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
+
+bool fileExists(QString path) {
+	QFileInfo check_file(path);
+	// check if file exists and if yes: Is it really a file and no directory?
+	return (check_file.exists() && check_file.isFile());
+}
+
+//-----------------------------------------------------------------------------
+
+static bool removeDir(const QString & dirName)
+{
+	bool result = true;
+	QDir dir(dirName);
+
+	if (dir.exists()) {
+		foreach(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot
+			| QDir::System | QDir::Hidden | QDir::AllDirs
+			| QDir::Files, QDir::DirsFirst)) {
+			if (info.isDir()) {
+				result = removeDir(info.absoluteFilePath());
+			}
+			else {
+				result = QFile::remove(info.absoluteFilePath());
+			}
+
+			if (!result) {
+				return result;
+			}
+		}
+		result = QDir().rmdir(dirName);
+	}
+	return result;
+}
+
+//-----------------------------------------------------------------------------
 static int findPortFile(QString playerWorkingDir) {
 	/* Process startet, but we still
 	 * have to wait until Unity
@@ -108,6 +171,62 @@ static int findPortFile(QString playerWorkingDir) {
 }
 
 //-----------------------------------------------------------------------------
+void Unity3D::exportScene(pqServerManagerModel *sm, 
+	QString exportLocation, int port) {
+	QList<pqRenderView *> renderViews = sm->findItems<pqRenderView *>();
+	vtkSMRenderViewProxy *renderProxy = renderViews[0]->getRenderViewProxy();
+	vtkSmartPointer<vtkX3DExporter> exporter =
+		vtkSmartPointer<vtkX3DExporter>::New();
+
+	pqPVApplicationCore* core = pqPVApplicationCore::instance();
+	pqAnimationScene* scene = core->animationManager()->getActiveScene();
+
+	QString message;
+
+	if (scene->getTimeSteps().length() > 0) {
+		vtkSMPropertyHelper animationProp(scene->getProxy(), "AnimationTime");
+		int lastTime = animationProp.GetAsInt();
+		QString exportDir = exportLocation + "/paraview_output";
+		for (int i = 0; i < scene->getTimeSteps().length(); i++) {
+			animationProp.Set(i);
+			scene->getProxy()->UpdateVTKObjects();
+
+			QDir dir(exportDir);
+			if (dir.exists()) {
+				removeDir(dir.absolutePath());
+			}
+			dir.mkdir(".");
+
+			QString exportFile = exportDir + "/frame_" + QString::number(i) + ".x3d";
+
+			exporter->SetInput(renderProxy->GetRenderWindow());
+			exporter->SetFileName(exportFile.toLatin1());
+			exporter->Write();
+		}
+
+		animationProp.Set(lastTime);
+		message = exportDir;
+	}
+	else {
+		QString exportFile = exportLocation + "/paraview_output.x3d";
+		if (fileExists(exportFile)) {
+			QFile::remove(exportFile);
+		}
+
+		exporter->SetInput(renderProxy->GetRenderWindow());
+		exporter->SetFileName(exportFile.toLatin1());
+		exporter->Write();
+
+		message = exportFile;
+	}
+
+	if (!sendMessage(message, port)) {
+		QMessageBox::critical(NULL, tr("Unity Error"),
+			tr("Unable to communicate to Unity process"));
+	}
+}
+
+//-----------------------------------------------------------------------------
 Unity3D::Unity3D(QObject *p) : QActionGroup(p), unityPlayerProcess(NULL) {
 	this->workingDir = QDir::tempPath() + "/Unity3DPlugin";
 
@@ -129,7 +248,6 @@ Unity3D::Unity3D(QObject *p) : QActionGroup(p), unityPlayerProcess(NULL) {
 		new QAction(exportActionIcon, "Export to Unity Editor", this);
 	exportAction->setData(UNITY_EDITOR_ACTION);
 	this->addAction(exportAction);
-
 	QObject::connect(this, SIGNAL(triggered(QAction *)), this,
 		SLOT(onAction(QAction *)));
 }
@@ -141,7 +259,7 @@ void Unity3D::onAction(QAction *a) {
 
 	if (sm->getNumberOfItems<pqServer *>()) {
 		if (a->data() == UNITY_PLAYER_ACTION) {
-			this->showInUnityPlayer(sm);
+			this->exportToUnityPlayer(sm);
 		}
 		else if (a->data() == UNITY_EDITOR_ACTION) {
 			this->exportToUnityEditor(sm);
@@ -153,7 +271,7 @@ void Unity3D::onAction(QAction *a) {
 }
 
 //-----------------------------------------------------------------------------
-void Unity3D::showInUnityPlayer(pqServerManagerModel *sm) {
+void Unity3D::exportToUnityPlayer(pqServerManagerModel *sm) {
 
 	if (this->unityPlayerProcess == NULL ||
 		this->unityPlayerProcess->pid() <= 0) {
@@ -168,36 +286,12 @@ void Unity3D::showInUnityPlayer(pqServerManagerModel *sm) {
 		}
 
 		this->playerWorkingDir = this->workingDir + "/Embedded/" +
-			QString::number(this->unityPlayerProcess->processId());
+			QString::number(getProcessID(this->unityPlayerProcess));
 
 		this->port = findPortFile(playerWorkingDir);
 	}
 
-	QString exportDir = this->playerWorkingDir + "/paraview_output";
-
-	vtkSmartPointer<vtkX3DExporter> exporter =
-		vtkSmartPointer<vtkX3DExporter>::New();
-	QString exportFile = this->playerWorkingDir + "/paraview_output.x3d";
-
-	QList<pqRenderView *> renderViews = sm->findItems<pqRenderView *>();
-	vtkSMRenderViewProxy *renderProxy = renderViews[0]->getRenderViewProxy();
-
-	exporter->SetInput(renderProxy->GetRenderWindow());
-	exporter->SetFileName(exportFile.toLatin1());
-	exporter->Write();
-
-	QByteArray data(exportFile.toLatin1());
-
-	QTcpSocket *socket = new QTcpSocket(this);
-	socket->connectToHost("127.0.0.1", this->port);
-	if (!socket->waitForConnected()) {
-		QMessageBox::critical(NULL, tr("Unity Player Error"),
-			tr("Unable to communicate to Player process"));
-		return;
-	}
-	socket->write(data);
-	socket->waitForBytesWritten();
-	socket->waitForDisconnected();
+	exportScene(sm, this->playerWorkingDir, this->port);
 }
 
 //-----------------------------------------------------------------------------
@@ -207,66 +301,32 @@ void Unity3D::exportToUnityEditor(pqServerManagerModel *sm) {
 
 	vtkSMRenderViewProxy *renderProxy = renderViews[0]->getRenderViewProxy();
 
-	QString exportLocations(QDir::tempPath() + "/Unity3DPlugin");
+	QString exportLocations(this->workingDir + "/editor");
 
-	QStringList activeUnityInstances;
+	QList<int> activeUnityInstances;
 	foreach(const QString &dir, QDir(exportLocations).entryList()) {
 		if (dir != "." && dir != "..") {
-			// QString lockFile = exportLocations + "/" + dir + "/lock";
-			// if (QFile::exists(lockFile) && !QFile::remove(lockFile)) {
-			activeUnityInstances << dir;
-			//}
+			int port = dir.toInt();
+			if (sendMessage("TEST", port)) {
+				activeUnityInstances << port;
+			}
+			else {
+				removeDir(exportLocations + "/" + dir);
+			}
 		}
 	}
 
 	if (activeUnityInstances.isEmpty()) {
-		QMessageBox dialog(QMessageBox::Warning, "Unity not running",
-			"No suitable instance of the Unity Editor is running!");
-		dialog.setText("Start a prepared Unity project first");
-		dialog.exec();
+		QMessageBox::critical(NULL, tr("Unity Editor not running"),
+			tr("Start a prepared Unity project first"));
 	}
-	else if (activeUnityInstances.length() == 1) {
-		vtkSmartPointer<vtkX3DExporter> exporter =
-			vtkSmartPointer<vtkX3DExporter>::New();
-		QString exportFile = exportLocations + "/" + activeUnityInstances[0] +
-			"/paraview_output.x3d";
-		exporter->SetInput(renderProxy->GetRenderWindow());
-		exporter->SetFileName(exportFile.toLatin1());
-		exporter->Write();
-		QFile(exportFile)
-			.rename(exportLocations + "/" + activeUnityInstances[0] +
-				"/paraview_output.x3d");
+	else if (activeUnityInstances.length() > 1) {
+		QMessageBox::critical(NULL, tr("Error"),
+			tr("Multiple Unity instances are running at the same time"));
 	}
 	else {
-		QMessageBox dialog(QMessageBox::Critical, "Error",
-			"Multiple Unity instances are running");
-		dialog.exec();
+		QString exportLocation = exportLocations + "/" + QString::number(activeUnityInstances[0]);
+		exportScene(sm, exportLocation, activeUnityInstances[0]);
 	}
-
-	// qDebug() << scene->getTimeSteps().length();
-	// qDebug() << scene->getAnimationTime();
-	// vtkSMPropertyHelper(scene->getProxy(), "AnimationTime").Set(3);
-	// scene->getProxy()->UpdateVTKObjects();
-
-	/*QString program = "/Applications/blender.app/Contents/MacOS/blender";
-	 QStringList arguments;
-	 arguments << "--background";
-	 arguments << "--python" << blenderConverterScript.fileName();
-	 arguments << "--" << exportFile;*/
-
-	 /*QProcess blender;
-	  blender.start(program, arguments);
-	  if (!blender.waitForStarted()) {
-	  QMessageBox dialog(QMessageBox::Warning, "Blender Export",
-	  "");
-	  dialog.setText("Unable to call blender conversion script");
-	  dialog.exec();
-	  }
-
-	  if (!blender.waitForFinished()) {
-	  QMessageBox dialog(QMessageBox::Warning, "Blender Export",
-	  "");
-	  dialog.setText("Unsuccessful export to blender");
-	  dialog.exec();
-	  }*/
 }
+

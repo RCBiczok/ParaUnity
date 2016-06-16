@@ -17,10 +17,12 @@ private:
     int port;
     QString workingDir;
     QString playerWorkingDir;
-    void showInUnityPlayer(pqServerManagerModel* sm);
+	void exportToUnityPlayer(pqServerManagerModel* sm);
     void exportToUnityEditor(pqServerManagerModel* sm);
 public slots:
     void onAction(QAction* a);
+	bool sendMessage(QString message, int port);
+	void exportScene(pqServerManagerModel *sm, QString exportLocation, int port);
 };
 
 #endif // Unity3D_h

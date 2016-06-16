@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="ParaUnity.X3D.Triangulator">
+    <Position X="15.75" Y="8" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAAABAAAAAAAAAAAAIAAAAgAAAAAAQAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\Triangulator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DAppearance">
+    <Position X="12.25" Y="11.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DAppearance.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DBackground">
+    <Position X="9.75" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DBackground.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DDirectionalLight">
+    <Position X="1.5" Y="8" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAKAAAAAIAgAAAAAAAAAAgAAAAIA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DDirectionalLight.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DIndexedFaceSet">
+    <Position X="3.75" Y="8" Width="3.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="ParaUnity.X3D.X3DIndexedFaceSet.Projector" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\X3DLoader\Model\X3DIndexedFaceSet.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAMAQEAACIAAAAIAAAAAAAAAAAAAgEAAAgAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DIndexedFaceSet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DMaterial">
+    <Position X="13.5" Y="8" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAAAQAAAAAAAAAAgCAAACAAAAAAAAAgAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DMaterial.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.Rotation">
+    <Position X="7.75" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DNode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DNode">
+    <Position X="10.75" Y="5.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAgAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DNode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DContainer">
+    <Position X="11.5" Y="8" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAEAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DNode.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DScene">
+    <Position X="14.25" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DScene.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DShape">
+    <Position X="16" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DShape.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DTransform">
+    <Position X="10.25" Y="11.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIACAIIAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DTransform.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Rotation" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="ParaUnity.X3D.X3DViewpoint">
+    <Position X="7.25" Y="8" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAQAAAAAgAIAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\X3DLoader\Model\X3DViewpoint.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Orientation" />
+    </ShowAsAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

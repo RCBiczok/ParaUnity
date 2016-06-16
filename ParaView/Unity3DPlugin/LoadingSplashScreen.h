@@ -1,7 +1,9 @@
 #ifndef LoadingSplashScreen_h
 #define LoadingSplashScreen_h
 
-#include <QtWidgets>
+#include <QSplashScreen>
+#include <QMovie>
+#include <QPainter>
 #include <QString>
 
 class LoadingSplashScreen : public QSplashScreen {
