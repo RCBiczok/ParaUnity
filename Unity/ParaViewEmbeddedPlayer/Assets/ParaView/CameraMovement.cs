@@ -28,7 +28,6 @@ namespace ParaUnity
 				set {
 					this.target = value;
 					this.initialDistance = Vector3.Distance (this.transform.position, target);
-					Debug.Log (this.initialDistance);
 				}
 		}
 
@@ -61,7 +60,7 @@ namespace ParaUnity
 			if (this.leftClickedAndHould) {
 				this.transform.RotateAround (Target, Vector3.up, 
 					Input.GetAxis("Mouse X") * rotationSpeed);
-				this.transform.RotateAround (Target, Vector3.left, 
+				this.transform.RotateAround (Target, Vector3.right, 
 					Input.GetAxis("Mouse Y") * rotationSpeed);
 			}
 			if (this.rightClickedAndHould) {

@@ -1,9 +1,9 @@
-﻿using System;
-
-namespace ParaUnity.X3D
+﻿namespace ParaUnity.X3D
 {
-	using UnityEngine;
+	using System;
 	using System.Xml.Linq;
+	using UnityEngine;
+	using UnityVC;
 
 	public class X3DMaterial : X3DNode
 	{
@@ -33,6 +33,15 @@ namespace ParaUnity.X3D
 			this.Shininess = shininess;
 			this.Transparency = transparency;
 		}
+
+		override public void Convert (GameObject obj)
+		{
+			obj.AddComponent<MeshRenderer> ();
+			obj.GetComponent<MeshRenderer> ().material = GameObject.Find ("MaterialPlaceHolder").GetComponent<MeshRenderer> ().material;
+			//obj.GetComponent<MeshRenderer> ().material = new Material (Shader.Find ("Standard (Vertex Color)"));
+			//Util.SetMaterialKeywords(obj.GetComponent<MeshRenderer> ().material, WorkflowMode.Specular);
+		}
+
 	}
 
 	sealed class X3DMaterialHandler : X3DHandler
@@ -54,4 +63,3 @@ namespace ParaUnity.X3D
 		}
 	}
 }
-

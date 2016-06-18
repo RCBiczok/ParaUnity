@@ -25,13 +25,10 @@
 	/// </summary>
 	public abstract class X3DNode
 	{
-		//TODO Remove this shit!!
-		public static Material __defaultMaterial;
-
 		public static explicit operator GameObject (X3DNode node)
 		{
 			GameObject parent = new GameObject ("UnityRoot");
-			parent.SetActive (false);
+			//parent.SetActive (false);
 			node.Convert (parent);
 			return parent;
 		}
@@ -39,6 +36,13 @@
 		virtual public void Convert (GameObject parent)
 		{
 		}
+	}
+
+	/// <summary>
+	/// Root class for the actual geometry (meshes etc.)
+	/// </summary>
+	public abstract class X3DGeometry : X3DNode
+	{
 	}
 
 	/// <summary>
@@ -139,11 +143,27 @@
 	}
 
 	/// <summary>
+	/// Abstract class for handling geometry nodes
+	/// </summary>
+	public abstract class X3DGeometryHandler : X3DHandler
+	{
+		protected X3DGeometryHandler (string targetNodeName) : base (targetNodeName)
+		{
+		}
+
+		public override X3DNode Parse (XElement elem)
+		{
+			return ParseGeometry (elem);
+		}
+
+		public abstract X3DGeometry ParseGeometry (XElement elem);
+	}
+
+	/// <summary>
 	/// Abstract class for handling nestable nodes
 	/// </summary>
 	public abstract class X3DContainerHandler : X3DHandler
 	{
-
 		private X3DHandler[] Handlers { get; set; }
 
 		protected X3DContainerHandler (string targetNodeName, bool nestable, X3DHandler[] handlers) : base (targetNodeName)

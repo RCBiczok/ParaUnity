@@ -2,28 +2,36 @@
 
 namespace ParaUnity.X3D
 {
+	using UnityEngine;
 	using System.Linq;
 	using System.Xml.Linq;
 
-	public class X3DAppearance : X3DContainer
+	public class X3DAppearance : X3DNode
 	{
-		public X3DAppearance (X3DNode[] nodes) : base (nodes)
+		public X3DMaterial Material { get; private set; }
+
+		public X3DAppearance (X3DMaterial material)
 		{
+			this.Material = material;
+		}
+
+		override public void Convert (GameObject obj)
+		{
+			this.Material.Convert (obj);
 		}
 	}
 
-	sealed class X3DAppearanceHandler : X3DContainerHandler
+	sealed class X3DAppearanceHandler : X3DHandler
 	{
 
-		private static X3DHandler[] HANDLERS = new X3DHandler[]{new X3DMaterialHandler(), new X3DIndexedFaceSetHandler()};
+		private X3DMaterialHandler materialHander = new X3DMaterialHandler();
 
-		public X3DAppearanceHandler () : base ("Appearance", false, HANDLERS)
-		{
+		public X3DAppearanceHandler() : base("Appearance") {
 		}
 
-		protected override X3DContainer ParseContainer (X3DNode[] nodes, XElement elem)
+		public override X3DNode Parse (XElement elem)
 		{
-			return new X3DAppearance (nodes);
+			return new X3DAppearance((X3DMaterial)materialHander.Parse (elem.Element("Material")));
 		}
 	}
 }

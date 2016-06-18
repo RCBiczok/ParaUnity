@@ -296,12 +296,7 @@ void Unity3D::exportToUnityPlayer(pqServerManagerModel *sm) {
 
 //-----------------------------------------------------------------------------
 void Unity3D::exportToUnityEditor(pqServerManagerModel *sm) {
-	// get all the pqRenderView instances.
-	QList<pqRenderView *> renderViews = sm->findItems<pqRenderView *>();
-
-	vtkSMRenderViewProxy *renderProxy = renderViews[0]->getRenderViewProxy();
-
-	QString exportLocations(this->workingDir + "/editor");
+	QString exportLocations(this->workingDir + "/Editor");
 
 	QList<int> activeUnityInstances;
 	foreach(const QString &dir, QDir(exportLocations).entryList()) {

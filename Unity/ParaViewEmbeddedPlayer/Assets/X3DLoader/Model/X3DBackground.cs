@@ -5,7 +5,7 @@
 	using System.Xml.Linq;
 	using System.Collections.Generic;
 
-	public class X3DBackground :  X3DNode
+	public class X3DBackground : X3DNode
 	{
 		public Color? SkyColor { get; private set; }
 

@@ -1,17 +1,11 @@
-using System;
-using UnityEngine;
-
 namespace UnityEditor
 {
+	using System;
+	using UnityEngine;
+	using UnityVC;
+
     public class StandardShaderVCGUI : ShaderGUI
     {
-        private enum WorkflowMode
-        {
-            Specular,
-            Metallic,
-            Dielectric
-        }
-
         public enum BlendMode
         {
             Opaque,
@@ -128,7 +122,7 @@ namespace UnityEditor
             // material to a standard shader.
             if (m_FirstTimeApply)
             {
-                SetMaterialKeywords(material, m_WorkflowMode);
+                Util.SetMaterialKeywords(material, m_WorkflowMode);
                 m_FirstTimeApply = false;
             }
         }
@@ -227,7 +221,7 @@ namespace UnityEditor
             // Dynamic Lightmapping mode
             if (showEmissionColorAndGIControls)
             {
-                bool shouldEmissionBeEnabled = ShouldEmissionBeEnabled(EvalFinalEmissionColor(material));
+                bool shouldEmissionBeEnabled = Util.ShouldEmissionBeEnabled(EvalFinalEmissionColor(material));
                 EditorGUI.BeginDisabledGroup(!shouldEmissionBeEnabled);
 
                 m_MaterialEditor.LightmapEmissionProperty(MaterialEditor.kMiniTextureFieldLabelIndentLevel + 1);
@@ -310,39 +304,6 @@ namespace UnityEditor
             return material.GetColor("_EmissionColorUI") * material.GetFloat("_EmissionScaleUI");
         }
 
-        static bool ShouldEmissionBeEnabled(Color color)
-        {
-            return color.grayscale > (0.1f / 255.0f);
-        }
-
-        static void SetMaterialKeywords(Material material, WorkflowMode workflowMode)
-        {
-            // Note: keywords must be based on Material value not on MaterialProperty due to multi-edit & material animation
-            // (MaterialProperty value might come from renderer material property block)
-            SetKeyword(material, "_NORMALMAP", material.GetTexture("_BumpMap") || material.GetTexture("_DetailNormalMap"));
-            if (workflowMode == WorkflowMode.Specular)
-                SetKeyword(material, "_SPECGLOSSMAP", material.GetTexture("_SpecGlossMap"));
-            else if (workflowMode == WorkflowMode.Metallic)
-                SetKeyword(material, "_METALLICGLOSSMAP", material.GetTexture("_MetallicGlossMap"));
-            SetKeyword(material, "_PARALLAXMAP", material.GetTexture("_ParallaxMap"));
-            SetKeyword(material, "_DETAIL_MULX2", material.GetTexture("_DetailAlbedoMap") || material.GetTexture("_DetailNormalMap"));
-
-            bool shouldEmissionBeEnabled = ShouldEmissionBeEnabled(material.GetColor("_EmissionColor"));
-            SetKeyword(material, "_EMISSION", shouldEmissionBeEnabled);
-
-            // Setup lightmap emissive flags
-            MaterialGlobalIlluminationFlags flags = material.globalIlluminationFlags;
-            if ((flags & (MaterialGlobalIlluminationFlags.BakedEmissive | MaterialGlobalIlluminationFlags.RealtimeEmissive)) != 0)
-            {
-                flags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
-                if (!shouldEmissionBeEnabled)
-                    flags |= MaterialGlobalIlluminationFlags.EmissiveIsBlack;
-
-                material.globalIlluminationFlags = flags;
-            }
-
-            SetKeyword(material, "_VERTEXCOLOR", material.GetFloat("_IntensityVC") > 0f);
-        }
 
         bool HasValidEmissiveKeyword(Material material)
         {
@@ -350,7 +311,7 @@ namespace UnityEditor
             // So if the emission support is disabled on the material, but the property blocks have a value that requires it, then we need to show a warning.
             // (note: (Renderer MaterialPropertyBlock applies its values to emissionColorForRendering))
             bool hasEmissionKeyword = material.IsKeywordEnabled("_EMISSION");
-            if (!hasEmissionKeyword && ShouldEmissionBeEnabled(emissionColorForRendering.colorValue))
+			if (!hasEmissionKeyword && Util.ShouldEmissionBeEnabled(emissionColorForRendering.colorValue))
                 return false;
             else
                 return true;
@@ -369,15 +330,7 @@ namespace UnityEditor
             // Handle Blending modes
             SetupMaterialWithBlendMode(material, (BlendMode)material.GetFloat("_Mode"));
 
-            SetMaterialKeywords(material, workflowMode);
-        }
-
-        static void SetKeyword(Material m, string keyword, bool state)
-        {
-            if (state)
-                m.EnableKeyword(keyword);
-            else
-                m.DisableKeyword(keyword);
+			Util.SetMaterialKeywords(material, workflowMode);
         }
     }
 }

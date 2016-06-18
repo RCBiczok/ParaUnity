@@ -19,7 +19,7 @@
 			string testFile = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref.x3d");
 
 			X3DScene scene = loader.Load (testFile);
-			Console.WriteLine (((X3DMaterial)((X3DAppearance)(((X3DShape)((X3DTransform)((X3DTransform)(scene.Children[3])).Children[4]).Children[0]).Children[0])).Children[0]).SpecularColor);
+			Console.WriteLine (((X3DMaterial)((X3DAppearance)(((X3DShape)((X3DTransform)((X3DTransform)(scene.Children[3])).Children[4]).Children[0]).Appearance)).Material).Shininess);
 			Assert.AreEqual (1, 1);
 		}
 

@@ -1,28 +1,61 @@
 ﻿namespace ParaUnity.X3D
 {
+	using UnityEngine;
 	using System.Linq;
+	using System.Collections.Generic;
 	using System.Xml.Linq;
 
-	public class X3DShape : X3DContainer
+	public class X3DShape : X3DNode
 	{
-		public X3DShape (X3DNode[] nodes) : base (nodes)
+		public X3DAppearance Appearance { get; private set; }
+		public X3DGeometry Geometry { get; private set; }
+
+		public X3DShape (X3DAppearance appearance, X3DGeometry geometry)
 		{
+			this.Appearance = appearance;
+			this.Geometry = geometry;
 		}
+
+
+		override public void Convert (GameObject parent)
+		{
+			GameObject shapeObj = new GameObject (this.GetType().Name);
+			shapeObj.transform.parent = parent.transform;
+
+			this.Appearance.Convert (shapeObj);
+			this.Geometry.Convert (shapeObj);
+		}
+
 	}
 
-	sealed class X3DShapeHandler : X3DContainerHandler
+	sealed class X3DShapeHandler : X3DHandler
 	{
 
-		private static X3DHandler[] HANDLERS = new X3DHandler[]{new X3DAppearanceHandler(), new X3DIndexedFaceSetHandler()};
+		private X3DAppearanceHandler appearanceHandler = new X3DAppearanceHandler();
 
-		public X3DShapeHandler () : base ("Shape", false, HANDLERS)
-		{
+		private X3DGeometryHandler[] geometryHandlers = new X3DGeometryHandler[] { 
+			new X3DIndexedFaceSetHandler ()
+		};
+
+		public X3DShapeHandler() : base("Shape") {
 		}
 
-		protected override X3DContainer ParseContainer (X3DNode[] nodes, XElement elem)
+		public override X3DNode Parse (XElement elem)
 		{
-			return new X3DShape (nodes);
+			X3DAppearance appearance = (X3DAppearance)appearanceHandler.Parse (elem.Element ("Appearance"));
+			X3DGeometry geometry = ParseGeometryNode (elem);
+			return new X3DShape(appearance, geometry);
 		}
+			
+		public X3DGeometry ParseGeometryNode (XElement elem)
+		{
+			Dictionary<string, X3DGeometryHandler> handlerDict = geometryHandlers.ToDictionary (h => h.TargetNodeName, h => h);
+
+			return elem.Elements ().
+				Where (e => handlerDict.ContainsKey (e.Name.ToString ())).
+				Select (e => handlerDict [e.Name.ToString ()].ParseGeometry (e)).ToArray ()[0];
+		}
+
 	}
 }
 

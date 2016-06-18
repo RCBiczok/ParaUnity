@@ -1,7 +1,7 @@
 ﻿namespace ParaUnity
 {
-	using UnityEngine;
 	using ParaUnity.X3D;
+	using UnityEngine;
 	using System;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -16,7 +16,6 @@
 		private static X3DLoader LOADER = new X3DLoader ();
 
 		public GameObject meshNode;
-		public UnityEngine.Material defaultMaterial;
 
 		private TcpListener listener;
 
@@ -49,7 +48,7 @@
 				string importDir = GetImportDir (soc);
 				Debug.Log ("Import dir:" + importDir);
 				soc.Disconnect (false);
-				ImportMesh(importDir, meshNode, defaultMaterial);
+				ImportMesh(importDir, meshNode);
 			}
 		}
 
@@ -70,10 +69,8 @@
 			return str.ToString ();
 		}
 
-		public static GameObject[] ImportMesh(string file, GameObject meshNode, Material defaultMaterial)
+		public static GameObject[] ImportMesh(string file, GameObject meshNode)
 		{
-			X3DNode.__defaultMaterial = defaultMaterial;
-
 			FileAttributes attr = File.GetAttributes(file);
 
 			if ((attr & FileAttributes.Directory) == FileAttributes.Directory) {

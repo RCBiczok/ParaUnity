@@ -6,8 +6,10 @@
 	using System.Collections.Generic;
 	using UnityEngine;
 
-	public class X3DIndexedFaceSet : X3DNode
+	public class X3DIndexedFaceSet : X3DGeometry
 	{
+
+		public bool Solid { get; private set; }
 
 		public bool NormalPerVertex { get; private set; }
 
@@ -21,13 +23,15 @@
 
 		public List<List<int>> Faces { get; private set; }
 
-		public X3DIndexedFaceSet (bool normalPerVertex,
+		public X3DIndexedFaceSet (bool solid,
+							   bool normalPerVertex,
 		                       bool colorPerVertex,
 		                       List<Vector3> vertices, 
 		                       List<Vector3> normals,
 		                       List<Color> colors,
 		                       List<List<int>> faces)
 		{
+			this.Solid = solid;
 			this.NormalPerVertex = normalPerVertex
 			&& (normals == null || normals.Count == vertices.Count);
 			this.ColorPerVertex = colorPerVertex
@@ -40,7 +44,7 @@
 
 
 
-		override public void Convert (GameObject parent) 
+		override public void Convert (GameObject target) 
 		{
 			X3DIndexedFaceSet preparedFaceSet = this.ToTriangulatedFaceSet ().
 				ToVertexOrientedFaceSet ();
@@ -48,11 +52,24 @@
 			//Create Mesh
 			Mesh mesh = new Mesh ();
 			mesh.vertices = preparedFaceSet.Vertices.ToArray();
-			int[] triangles = new int[preparedFaceSet.Faces.Count * 3];
+			int[] triangles;
+			// solid == true <=> front-faces only
+			if (!this.Solid) {
+				triangles = new int[preparedFaceSet.Faces.Count * 3 * 2];
+			} else {
+				triangles = new int[preparedFaceSet.Faces.Count * 3];
+			}
 			for (int i = 0; i < preparedFaceSet.Faces.Count; i++) {
 				triangles [i * 3] = preparedFaceSet.Faces [i] [0];
 				triangles [i * 3 + 1] = preparedFaceSet.Faces [i] [1];
 				triangles [i * 3 + 2] = preparedFaceSet.Faces [i] [2];
+			}
+			if (!this.Solid) {
+				for (int i = 0; i < preparedFaceSet.Faces.Count; i++) {
+					triangles [i * 3 + preparedFaceSet.Faces.Count * 3] = preparedFaceSet.Faces [i] [2];
+					triangles [i * 3 + 1 + preparedFaceSet.Faces.Count * 3] = preparedFaceSet.Faces [i] [1];
+					triangles [i * 3 + 2 + preparedFaceSet.Faces.Count * 3] = preparedFaceSet.Faces [i] [0];
+				}
 			}
 			mesh.triangles = triangles;
 			if (preparedFaceSet.Normals != null) {
@@ -62,21 +79,10 @@
 				mesh.colors = preparedFaceSet.Colors.ToArray();
 			}
 
-			//Spawn object
-			GameObject objToSpawn = new GameObject ();
-
-			objToSpawn.transform.parent = parent.transform;
-
 			//Add Components
-			objToSpawn.AddComponent<MeshFilter> ();
-			objToSpawn.AddComponent<MeshRenderer> ();
-
-			//Add material
-
-			objToSpawn.GetComponent<MeshRenderer> ().material = __defaultMaterial;
-			objToSpawn.GetComponent<MeshRenderer> ().material.shader = Shader.Find ("Standard (Vertex Color)");
-
-			objToSpawn.GetComponent<MeshFilter> ().mesh = mesh;
+			target.AddComponent<MeshFilter> ();
+			target.GetComponent<MeshFilter> ().mesh = mesh;
+			target.GetComponent<MeshFilter> ().sharedMesh = mesh;
 		}
 
 		private X3DIndexedFaceSet ToTriangulatedFaceSet ()
@@ -137,7 +143,8 @@
 				colors = new List<Color> (newColors);
 			}
 
-			return new X3DIndexedFaceSet (this.NormalPerVertex, 
+			return new X3DIndexedFaceSet (this.Solid,
+				this.NormalPerVertex, 
 				this.ColorPerVertex, 
 				this.Vertices, 
 				normals, 
@@ -220,7 +227,7 @@
 				colors.AddRange (addedColors);
 			}
 
-			return new X3DIndexedFaceSet (true, true, vertices, normals, colors, faces);
+			return new X3DIndexedFaceSet (this.Solid, true, true, vertices, normals, colors, faces);
 		}
 
 		private bool IsFacingInRightDirection (Vector3 aOld, Vector3 bOld, Vector3 cOld,
@@ -253,15 +260,16 @@
 		}
 	}
 
-	public class X3DIndexedFaceSetHandler : X3DHandler
+	public class X3DIndexedFaceSetHandler : X3DGeometryHandler
 	{
 
 		public X3DIndexedFaceSetHandler() : base("IndexedFaceSet") {
 		}
 
-		public override X3DNode Parse (XElement request)
+		public override X3DGeometry ParseGeometry (XElement request)
 		{
 			return new X3DIndexedFaceSet (
+				(bool)request.Attribute ("solid"),
 				(bool)request.Attribute ("normalPerVertex"),
 				(bool)request.Attribute ("colorPerVertex"),
 				ParseVertices (request),

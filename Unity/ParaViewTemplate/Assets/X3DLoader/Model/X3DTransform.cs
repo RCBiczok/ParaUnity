@@ -44,7 +44,7 @@
 
 	sealed class X3DTransformHandler : X3DContainerHandler
 	{
-		public static X3DHandler[] DEFAULT_HANDLERS = new  X3DHandler[] { 
+		public static X3DHandler[] DEFAULT_HANDLERS = new X3DHandler[] { 
 			new X3DBackgroundHandler (), 
 			new X3DViewpointHandler (),
 			new X3DDirectionalLightHandler (),

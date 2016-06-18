@@ -1,6 +1,6 @@
 ﻿namespace ParaView
 {
-
+	using ParaUnity.X3D;
 	using UnityEngine;
 	using UnityEditor;
 	using System.Collections;
@@ -13,10 +13,7 @@
 	[InitializeOnLoad]
 	public class EditorLoader : MonoBehaviour
 	{
-
-		public GameObject meshNode;
-		public UnityEngine.Material defaultMaterial;
-
+		private static X3DLoader LOADER = new X3DLoader ();
 		private static TcpListener LISTENER;
 
 		static EditorLoader()
@@ -36,8 +33,14 @@
 			if (LISTENER.Pending ()) {
 				Socket soc = LISTENER.AcceptSocket ();
 				string importDir = GetImportDir (soc);
-				Debug.Log ("Import dir:" + importDir);
-				soc.Disconnect (false);
+				if (!importDir.Equals ("TEST")) {
+					Debug.Log ("Import dir:" + importDir);
+					GameObject obj = (GameObject)LOADER.Load (importDir);
+					obj.SetActive (true);
+					UnityEngine.Object prefab = PrefabUtility.CreateEmptyPrefab("Assets/imported.prefab");
+					PrefabUtility.ReplacePrefab(obj, prefab, ReplacePrefabOptions.ConnectToPrefab);
+					soc.Disconnect (false);
+				}
 			}
 		}
 			

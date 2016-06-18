@@ -19,11 +19,13 @@
 			//string path = getTestX2DFile("paraview_tutorial_data/disk_out_ref/disk_out_ref.x3d");
 			//string path = getTestX2DFile("simple/Beam_Tet4_NElement=24_0.x3d");
 			//string path = getTestX2DFile ("liver_colored/liver_colored.x3d");
-			string path = getTestX2DFile ("liver_colored/animation");
-			frames = Loader.ImportMesh (path, meshNode, defaultMaterial);
+			string path = getTestX2DFile ("one_beam_cropped/one_beam_cropped.x3d");
+			//string path = getTestX2DFile ("liver_colored/animation");
+			frames = Loader.ImportMesh (path, meshNode);
+			frames [0].SetActive (true);
 		}
 
-		public void Update ()
+		/*public void Update ()
 		{
 			if (frames != null) {
 				frames [idx % frames.Length].transform.parent = null;
@@ -36,7 +38,7 @@
 				}
 				Debug.Log (idx);
 			}
-		}
+		}*/
 
         private string getTestX2DFile(string testFile)
         {
