@@ -22,8 +22,10 @@
 			GameObject shapeObj = new GameObject (this.GetType().Name);
 			shapeObj.transform.parent = parent.transform;
 
-			this.Appearance.Convert (shapeObj);
-			this.Geometry.Convert (shapeObj);
+			if (this.Geometry != null) {
+				this.Geometry.Convert (shapeObj);
+			}
+			//this.Appearance.Convert (shapeObj);
 		}
 
 	}
@@ -34,7 +36,9 @@
 		private X3DAppearanceHandler appearanceHandler = new X3DAppearanceHandler();
 
 		private X3DGeometryHandler[] geometryHandlers = new X3DGeometryHandler[] { 
-			new X3DIndexedFaceSetHandler ()
+			new X3DIndexedFaceSetHandler (),
+			new X3DIndexedLineSetHandler (),
+			new X3DPointSetHandler()
 		};
 
 		public X3DShapeHandler() : base("Shape") {
@@ -51,9 +55,11 @@
 		{
 			Dictionary<string, X3DGeometryHandler> handlerDict = geometryHandlers.ToDictionary (h => h.TargetNodeName, h => h);
 
-			return elem.Elements ().
+			X3DGeometry[] geoElements = elem.Elements ().
 				Where (e => handlerDict.ContainsKey (e.Name.ToString ())).
-				Select (e => handlerDict [e.Name.ToString ()].ParseGeometry (e)).ToArray ()[0];
+				Select (e => handlerDict [e.Name.ToString ()].ParseGeometry (e)).ToArray ();
+
+			return geoElements.Length > 0  ? geoElements[0] : null;
 		}
 
 	}

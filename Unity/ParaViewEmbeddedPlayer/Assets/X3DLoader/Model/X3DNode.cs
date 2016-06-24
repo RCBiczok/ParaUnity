@@ -157,6 +157,82 @@
 		}
 
 		public abstract X3DGeometry ParseGeometry (XElement elem);
+
+		protected List<List<int>> ParseCoordIndex (XElement request)
+		{
+			string coordIndex = (string)request.Attribute ("coordIndex");
+			string[] facesString = coordIndex.Split (new[] { "-1" }, StringSplitOptions.None);
+			List<List<int>> faces = new List<List<int>> (facesString.Length - 1);
+			for (int i = 0; i < faces.Capacity; i++) {
+				string[] faceString = facesString [i].Trim ().Split (' ');
+				List<int> face = new List<int> (faceString.Length);
+				for (int j = 0; j < face.Capacity; j++) {
+					face.Add (Int32.Parse (faceString [j]));
+				}
+				faces.Add (face);
+			}
+			return faces;
+		}
+
+		protected List<Vector3> ParseVertices (XElement request)
+		{
+			return ParseVertexBased (request.Element ("Coordinate"), null, "point");
+		}
+
+		protected List<Vector3> ParseNormals (XElement request)
+		{
+			return ParseVertexBased (request.Element ("Normal"), 
+				(string)request.Attribute ("normalIndex"), "vector");
+		}
+
+		protected List<Color> ParseColors (XElement request)
+		{
+			return ParseListOfTuples (request.Element ("Color"), 
+				(string)request.Attribute ("colorIndex"), "color", (colorChannels) => {
+					return new Color (ParseFloat (colorChannels [0]),
+						ParseFloat (colorChannels [1]),
+						ParseFloat (colorChannels [2]), 1);
+				});
+		}
+
+		protected List<Vector3> ParseVertexBased (XElement elem, string indexString, string subAttr)
+		{
+			return ParseListOfTuples (elem, indexString, subAttr, (vertexCoords) => {
+				return new Vector3 (ParseFloat (vertexCoords [0]),
+					ParseFloat (vertexCoords [1]),
+					ParseFloat (vertexCoords [2]));
+			});
+		}
+
+		private delegate T TupleConsumer<T> (string[] tuple);
+
+		private List<T> ParseListOfTuples <T> (XElement elem, string indexString, string subAttr, TupleConsumer<T> consumer)
+		{
+			if (elem == null || elem.Attribute (subAttr) == null) {
+				return null;
+			}
+			string[] verticesString = ((string)elem.Attribute (subAttr)).Trim ().Split (',');
+			List<T> vertices = new List<T> (verticesString.Length);
+			for (int i = 0; i < vertices.Capacity; i++) {
+				if (verticesString [i].Trim () == "") {
+					continue;
+				}
+				vertices.Add (consumer (verticesString [i].Trim ().Split (' ')));
+			}
+			if (indexString != null) {
+				string[] indexParts = indexString.Trim ().Split (' ');
+				List<int> index = new List<int> (indexParts.Length);
+				for (int i = 0; i < index.Capacity; i++) {
+					index.Add (Int32.Parse (indexParts [i]));
+				}
+				List<T> orderedVertices = new List<T> (vertices);
+				for (int i = 0; i < vertices.Count; i++) {
+					orderedVertices [index [i]] = vertices [i];
+				}
+				return orderedVertices;
+			}
+			return vertices;
+		}
 	}
 
 	/// <summary>

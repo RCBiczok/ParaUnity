@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding ="UTF-8"?>
+
+<X3D profile="Immersive" version="3.0">
+  <head>
+    <meta name="filename" content="/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/paraview_tutorial_data/disk_out_ref/disk_out_ref_volume.x3d"/>
+    <meta name="generator" content="Visualization ToolKit X3D exporter v0.9.1"/>
+    <meta name="numberofelements" content="9"/>
+  </head>
+  <Scene>
+    <Background skyColor="0.32 0.34 0.43"/>
+    <Viewpoint fieldOfView="0.523599" position="-9.10088 -25.9758 -20.1816" description="Default View" orientation="0.650725 -0.721826 0.235636 -3.95576" centerOfRotation="-1.08116e-17 -2.59015e-17 0.0799999"/>
+    <NavigationInfo type='"EXAMINE" "FLY" "ANY"' speed="4" headlight="true"/>
+    <DirectionalLight ambientIntensity="1" intensity="0" color="1 1 1"/>
+    <Transform DEF="ROOT" translation="0 0 0">
+      <DirectionalLight direction="-0.111619 -0.766044 -0.633022" color="1 0.97232 0.90222" intensity="0.75" on="true"/>
+      <DirectionalLight direction="0.0449435 0.965926 -0.254887" color="0.90824 0.93314 1" intensity="0.25" on="true"/>
+      <DirectionalLight direction="-0.939693 0 0.34202" color="0.9998 0.9998 0.9998" intensity="0.214286" on="true"/>
+      <DirectionalLight direction="0.939693 0 0.34202" color="0.9998 0.9998 0.9998" intensity="0.214286" on="true"/>
+      <Transform translation="0 0 0" rotation="0 0 1 -0" scale="1 1 1"/>
+    </Transform>
+  </Scene>
+</X3D>

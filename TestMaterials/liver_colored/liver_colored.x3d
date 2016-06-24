@@ -2,13 +2,13 @@
 
 <X3D profile="Immersive" version="3.0">
   <head>
-    <meta name="filename" content="/var/folders/j1/3n5qfvpj5bl614tfr1syr5440000gn/T/Unity3DPlugin/Embedded/paraview_output.x3d"/>
+    <meta name="filename" content="/Users/rcbiczok/Bachelorarbeit/ParaUnity/Prototype/TestMaterials/liver_colored/liver_colored.x3d"/>
     <meta name="generator" content="Visualization ToolKit X3D exporter v0.9.1"/>
     <meta name="numberofelements" content="9"/>
   </head>
   <Scene>
     <Background skyColor="0.32 0.34 0.43"/>
-    <Viewpoint fieldOfView="0.523599" position="284.093 547.558 -79.2096" description="Default View" orientation="0.8472 -0.528365 0.0555242 -0.817409" centerOfRotation="29.7438 160.755 -514.582"/>
+    <Viewpoint fieldOfView="0.523599" position="-1081.84 56.6467 -659.593" description="Default View" orientation="-0.52361 0.754222 0.396208 -1.91665" centerOfRotation="29.7438 160.755 -514.582"/>
     <NavigationInfo type='"EXAMINE" "FLY" "ANY"' speed="4" headlight="true"/>
     <DirectionalLight ambientIntensity="1" intensity="0" color="1 1 1"/>
     <Transform DEF="ROOT" translation="0 0 0">

@@ -8,6 +8,7 @@
 
 	public class X3DIndexedFaceSet : X3DGeometry
 	{
+		private const int MAX_VERTEX_PER_MESH_COUNT = 65000;
 
 		public bool Solid { get; private set; }
 
@@ -41,48 +42,105 @@
 			this.Colors = colors;
 			this.Faces = faces;
 		}
-
-
-
-		override public void Convert (GameObject target) 
+			
+		override public void Convert (GameObject parent) 
 		{
 			X3DIndexedFaceSet preparedFaceSet = this.ToTriangulatedFaceSet ().
 				ToVertexOrientedFaceSet ();
 
-			//Create Mesh
-			Mesh mesh = new Mesh ();
-			mesh.vertices = preparedFaceSet.Vertices.ToArray();
-			int[] triangles;
-			// solid == true <=> front-faces only
-			if (!this.Solid) {
-				triangles = new int[preparedFaceSet.Faces.Count * 3 * 2];
-			} else {
-				triangles = new int[preparedFaceSet.Faces.Count * 3];
+			AddFace (parent, preparedFaceSet, true);
+			if(!this.Solid) {
+				AddFace (parent, preparedFaceSet, false);
 			}
+		}
+
+		private void AddFace(GameObject parent, X3DIndexedFaceSet preparedFaceSet, bool frontFace) {
+
+			List<Vector3> vertices = null;
+			int?[] vertexMapping = null;
+			List<Vector3> normals = null;
+			List<Color> colors = null;
+			List<int> triangles = null;
+
+			int partCount = 0;
+
 			for (int i = 0; i < preparedFaceSet.Faces.Count; i++) {
-				triangles [i * 3] = preparedFaceSet.Faces [i] [0];
-				triangles [i * 3 + 1] = preparedFaceSet.Faces [i] [1];
-				triangles [i * 3 + 2] = preparedFaceSet.Faces [i] [2];
-			}
-			if (!this.Solid) {
-				for (int i = 0; i < preparedFaceSet.Faces.Count; i++) {
-					triangles [i * 3 + preparedFaceSet.Faces.Count * 3] = preparedFaceSet.Faces [i] [2];
-					triangles [i * 3 + 1 + preparedFaceSet.Faces.Count * 3] = preparedFaceSet.Faces [i] [1];
-					triangles [i * 3 + 2 + preparedFaceSet.Faces.Count * 3] = preparedFaceSet.Faces [i] [0];
+				if (vertices != null && vertices.Count + 3 > MAX_VERTEX_PER_MESH_COUNT) {
+					AddPart (parent, vertices, normals, colors, triangles, (frontFace ? "Front_" : "Back_") + partCount);
+					partCount++;
+					vertices = null;
+				}
+				if (vertices == null) {
+					vertices = new List<Vector3> (preparedFaceSet.Vertices.Count);
+					vertexMapping = new int?[preparedFaceSet.Vertices.Count];
+					if (preparedFaceSet.Normals != null) {
+						normals = new List<Vector3> (preparedFaceSet.Normals.Count);
+					}
+					if (preparedFaceSet.Colors != null) {
+						colors = new List<Color> (preparedFaceSet.Colors.Count);
+					}
+					triangles = new List<int>(preparedFaceSet.Faces.Count * 3);
+				}
+					
+				int vertexA;
+				int vertexB;
+				int vertexC;
+
+				if (frontFace) {
+					vertexA = preparedFaceSet.Faces [i] [0];
+					vertexB = preparedFaceSet.Faces [i] [1];
+					vertexC = preparedFaceSet.Faces [i] [2];
+				} else {
+					vertexA = preparedFaceSet.Faces [i] [2];
+					vertexB = preparedFaceSet.Faces [i] [1];
+					vertexC = preparedFaceSet.Faces [i] [0];
+				}
+
+				foreach (int vertexId in new int[]{vertexA, vertexB, vertexC}) {
+					if (vertexMapping [vertexId] == null) {
+						vertexMapping [vertexId] = vertices.Count;
+						vertices.Add (preparedFaceSet.Vertices[vertexId]);
+						if (preparedFaceSet.Normals != null) {
+							normals.Add (preparedFaceSet.Normals[vertexId]);
+						}
+						if (preparedFaceSet.Colors != null) {
+							colors.Add (preparedFaceSet.Colors[vertexId]);
+						}
+					}
+					triangles.Add (vertexMapping [vertexId].Value);
 				}
 			}
-			mesh.triangles = triangles;
-			if (preparedFaceSet.Normals != null) {
-				mesh.normals = preparedFaceSet.Normals.ToArray();
-			}
-			if (preparedFaceSet.Colors != null) {
-				mesh.colors = preparedFaceSet.Colors.ToArray();
-			}
+			AddPart (parent, vertices, normals, colors, triangles, (frontFace ? "Front_" : "Back_") + partCount);
+		}
 
-			//Add Components
-			target.AddComponent<MeshFilter> ();
-			target.GetComponent<MeshFilter> ().mesh = mesh;
-			target.GetComponent<MeshFilter> ().sharedMesh = mesh;
+		private void AddPart(GameObject parent,
+			List<Vector3> vertices,
+			List<Vector3> normals,
+			List<Color> colors,
+			List<int> triangles,
+			string label) {
+
+			GameObject part = new GameObject (label);
+			part.transform.parent = parent.transform;
+
+			Mesh mesh = new Mesh ();
+			mesh.vertices = vertices.ToArray();
+			mesh.triangles = triangles.ToArray();
+			if (normals != null) {
+				mesh.normals = normals.ToArray();
+			}
+			if (colors != null) {
+				mesh.colors = colors.ToArray();
+			}
+				
+			mesh.RecalculateBounds ();
+			mesh.RecalculateNormals ();
+				
+			part.AddComponent<MeshFilter> ();
+			part.GetComponent<MeshFilter> ().mesh = mesh;
+
+			part.AddComponent<MeshRenderer> ();
+			part.GetComponent<MeshRenderer> ().material = GameObject.Find ("MaterialPlaceHolder").GetComponent<MeshRenderer> ().material;
 		}
 
 		private X3DIndexedFaceSet ToTriangulatedFaceSet ()
@@ -102,34 +160,44 @@
 						(vec) => new Vector2 (vec.y, vec.z));
 				}
 
-				Triangulator tr = new Triangulator (prohjectedVertices);
-				int[] indices = tr.Triangulate ();
-					
-				for (int i = 0; i < indices.Length / 3; i++) {
-					List<int> triangle = new List<int> ();
-
-					if (IsFacingInRightDirection (
-						    this.Vertices [this.Faces [faceIdx] [0]],
-						    this.Vertices [this.Faces [faceIdx] [1]],
-						    this.Vertices [this.Faces [faceIdx] [2]],
-						    this.Vertices [this.Faces [faceIdx] [indices [3 * i]]], 
-						    this.Vertices [this.Faces [faceIdx] [indices [3 * i + 1]]], 
-						    this.Vertices [this.Faces [faceIdx] [indices [3 * i + 2]]])) {
-						triangle.Add (this.Faces [faceIdx] [indices [3 * i]]);
-						triangle.Add (this.Faces [faceIdx] [indices [3 * i + 1]]);
-						triangle.Add (this.Faces [faceIdx] [indices [3 * i + 2]]);
-					} else {
-						triangle.Add (this.Faces [faceIdx] [indices [3 * i + 2]]);
-						triangle.Add (this.Faces [faceIdx] [indices [3 * i + 1]]);
-						triangle.Add (this.Faces [faceIdx] [indices [3 * i]]);
-					}
-
-					triangles.AddLast (triangle);
+				if (this.Faces [faceIdx].Count == 3) {
+					triangles.AddLast (this.Faces [faceIdx]);
 					if (!this.NormalPerVertex) {
 						newNormals.AddLast (this.Normals [faceIdx]);
 					}
 					if (!this.ColorPerVertex) {
 						newColors.AddLast (this.Colors [faceIdx]);
+					}
+				} else {
+					Triangulator tr = new Triangulator (prohjectedVertices);
+					int[] indices = tr.Triangulate ();
+					
+					for (int i = 0; i < indices.Length / 3; i++) {
+						List<int> triangle = new List<int> ();
+
+						if (IsFacingInRightDirection (
+							   this.Vertices [this.Faces [faceIdx] [0]],
+							   this.Vertices [this.Faces [faceIdx] [1]],
+							   this.Vertices [this.Faces [faceIdx] [2]],
+							   this.Vertices [this.Faces [faceIdx] [indices [3 * i]]], 
+							   this.Vertices [this.Faces [faceIdx] [indices [3 * i + 1]]], 
+							   this.Vertices [this.Faces [faceIdx] [indices [3 * i + 2]]])) {
+							triangle.Add (this.Faces [faceIdx] [indices [3 * i]]);
+							triangle.Add (this.Faces [faceIdx] [indices [3 * i + 1]]);
+							triangle.Add (this.Faces [faceIdx] [indices [3 * i + 2]]);
+						} else {
+							triangle.Add (this.Faces [faceIdx] [indices [3 * i + 2]]);
+							triangle.Add (this.Faces [faceIdx] [indices [3 * i + 1]]);
+							triangle.Add (this.Faces [faceIdx] [indices [3 * i]]);
+						}
+
+						triangles.AddLast (triangle);
+						if (!this.NormalPerVertex) {
+							newNormals.AddLast (this.Normals [faceIdx]);
+						}
+						if (!this.ColorPerVertex) {
+							newColors.AddLast (this.Colors [faceIdx]);
+						}
 					}
 				}
 			}
@@ -275,86 +343,9 @@
 				ParseVertices (request),
 				ParseNormals (request),
 				ParseColors (request), 
-				ParseFaces (request)
+				ParseCoordIndex (request)
 			);
 		}
-
-		private List<List<int>>  ParseFaces (XElement request)
-		{
-			string coordIndex = (string)request.Attribute ("coordIndex");
-			string[] facesString = coordIndex.Split (new[] { "-1" }, StringSplitOptions.None);
-			List<List<int>> faces = new List<List<int>> (facesString.Length - 1);
-			for (int i = 0; i < faces.Capacity; i++) {
-				string[] faceString = facesString [i].Trim ().Split (' ');
-				List<int> face = new List<int> (faceString.Length);
-				for (int j = 0; j < face.Capacity; j++) {
-					face.Add (Int32.Parse (faceString [j]));
-				}
-				faces.Add (face);
-			}
-			return faces;
-		}
-
-		private List<Vector3> ParseVertices (XElement request)
-		{
-			return ParseVertexBased (request.Element ("Coordinate"), null, "point");
-		}
-
-		private List<Vector3> ParseNormals (XElement request)
-		{
-			return ParseVertexBased (request.Element ("Normal"), 
-				(string)request.Attribute ("normalIndex"), "vector");
-		}
-
-		private List<Color> ParseColors (XElement request)
-		{
-			return ParseListOfTuples (request.Element ("Color"), 
-				(string)request.Attribute ("colorIndex"), "color", (colorChannels) => {
-				return new Color (ParseFloat (colorChannels [0]),
-					ParseFloat (colorChannels [1]),
-					ParseFloat (colorChannels [2]), 1);
-			});
-		}
-
-		private List<Vector3> ParseVertexBased (XElement elem, string indexString, string subAttr)
-		{
-			return ParseListOfTuples (elem, indexString, subAttr, (vertexCoords) => {
-				return new Vector3 (ParseFloat (vertexCoords [0]),
-					ParseFloat (vertexCoords [1]),
-					ParseFloat (vertexCoords [2]));
-			});
-		}
-
-		private delegate T TupleConsumer<T> (string[] tuple);
-
-		private List<T> ParseListOfTuples <T> (XElement elem, string indexString, string subAttr, TupleConsumer<T> consumer)
-		{
-			if (elem == null || elem.Attribute (subAttr) == null) {
-				return null;
-			}
-			string[] verticesString = ((string)elem.Attribute (subAttr)).Trim ().Split (',');
-			List<T> vertices = new List<T> (verticesString.Length);
-			for (int i = 0; i < vertices.Capacity; i++) {
-				if (verticesString [i].Trim () == "") {
-					continue;
-				}
-				vertices.Add (consumer (verticesString [i].Trim ().Split (' ')));
-			}
-			if (indexString != null) {
-				string[] indexParts = indexString.Trim ().Split (' ');
-				List<int> index = new List<int> (indexParts.Length);
-				for (int i = 0; i < index.Capacity; i++) {
-					index.Add (Int32.Parse (indexParts [i]));
-				}
-				List<T> orderedVertices = new List<T> (vertices);
-				for (int i = 0; i < vertices.Count; i++) {
-					orderedVertices [index [i]] = vertices [i];
-				}
-				return orderedVertices;
-			}
-			return vertices;
-		}
 	}
-
 }
 

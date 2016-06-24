@@ -6,7 +6,8 @@ using System.Collections;
 namespace ParaUnity
 {
 
-	public enum MouseButton {
+	public enum MouseButton
+	{
 		Left = 0,
 		Right = 1,
 		Middle = 2,
@@ -14,21 +15,18 @@ namespace ParaUnity
 
 	public class CameraMovement : MonoBehaviour
 	{
-
-		private float rotationSpeed = 4f;
 		private float speedFactor = 0.1f;
 		private Vector3 target;
 		private float initialDistance;
 
-		public Vector3 Target 
-			{ 
-				get { 
-					return target; 
-				} 
-				set {
-					this.target = value;
-					this.initialDistance = Vector3.Distance (this.transform.position, target);
-				}
+		public Vector3 Target { 
+			get { 
+				return target; 
+			} 
+			set {
+				this.target = value;
+				this.initialDistance = Vector3.Distance (this.transform.position, target);
+			}
 		}
 
 		private bool leftClickedAndHould;
@@ -59,22 +57,21 @@ namespace ParaUnity
 
 			if (this.leftClickedAndHould) {
 				this.transform.RotateAround (Target, Vector3.up, 
-					Input.GetAxis("Mouse X") * rotationSpeed);
+					Input.GetAxis ("Mouse X") * 1/speedFactor);
 				this.transform.RotateAround (Target, Vector3.right, 
-					Input.GetAxis("Mouse Y") * rotationSpeed);
+					Input.GetAxis ("Mouse Y") * 1/speedFactor);
 			}
 			if (this.rightClickedAndHould) {
-				transform.Translate(Vector3.forward * 
-					Input.GetAxis("Mouse Y") * speedFactor * initialDistance);
+				transform.Translate (Vector3.forward *
+				Input.GetAxis ("Mouse Y") * speedFactor * initialDistance);
 			}
 			if (this.middleClickedAndHould) {
-				transform.Translate(Vector3.up * Input.GetAxis("Mouse Y") * speedFactor * initialDistance);
-				transform.Translate(Vector3.right * Input.GetAxis("Mouse X") * speedFactor * initialDistance);
+				transform.Translate (Vector3.up * Input.GetAxis ("Mouse Y") * speedFactor * initialDistance);
+				transform.Translate (Vector3.right * Input.GetAxis ("Mouse X") * speedFactor * initialDistance);
 			} 
 
-			if (Input.GetAxis("Mouse ScrollWheel") != 0)
-			{
-				transform.Translate(Vector3.forward * Input.GetAxis("Mouse ScrollWheel") * speedFactor * initialDistance);
+			if (Input.GetAxis ("Mouse ScrollWheel") != 0) {
+				transform.Translate (Vector3.forward * Input.GetAxis ("Mouse ScrollWheel") * speedFactor * initialDistance);
 			}
 		}
 	}

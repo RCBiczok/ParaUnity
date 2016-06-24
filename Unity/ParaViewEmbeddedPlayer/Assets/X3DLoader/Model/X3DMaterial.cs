@@ -36,8 +36,8 @@
 
 		override public void Convert (GameObject obj)
 		{
-			obj.AddComponent<MeshRenderer> ();
-			obj.GetComponent<MeshRenderer> ().material = GameObject.Find ("MaterialPlaceHolder").GetComponent<MeshRenderer> ().material;
+			//obj.AddComponent<MeshRenderer> ();
+			//obj.GetComponent<MeshRenderer> ().material = GameObject.Find ("MaterialPlaceHolder").GetComponent<MeshRenderer> ().material;
 			//obj.GetComponent<MeshRenderer> ().material = new Material (Shader.Find ("Standard (Vertex Color)"));
 			//Util.SetMaterialKeywords(obj.GetComponent<MeshRenderer> ().material, WorkflowMode.Specular);
 		}
