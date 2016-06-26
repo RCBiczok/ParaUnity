@@ -40,7 +40,7 @@
 					LineRenderer lineRenderer = obj.AddComponent<LineRenderer> ();
 					Material material = new Material(Shader.Find("Standard (Vertex Color)"));
 					Util.SetMaterialKeywords(material, WorkflowMode.Specular);
-					lineRenderer.GetComponent<MeshRenderer> ().material = material;
+					lineRenderer.material = material;
 
 					if (this.Colors != null) {
 						if (this.ColorPerVertex) {

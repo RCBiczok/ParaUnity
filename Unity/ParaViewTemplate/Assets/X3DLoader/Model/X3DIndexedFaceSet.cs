@@ -141,7 +141,6 @@
 			part.GetComponent<MeshFilter> ().mesh = mesh;
 
 			part.AddComponent<MeshRenderer> ();
-			//part.GetComponent<MeshRenderer> ().material = GameObject.Find ("MaterialPlaceHolder").GetComponent<MeshRenderer> ().sharedMaterial;
 			Material material = new Material(Shader.Find("Standard (Vertex Color)"));
 			Util.SetMaterialKeywords(material, WorkflowMode.Specular);
 			part.GetComponent<MeshRenderer> ().material = material;
@@ -155,15 +154,6 @@
 
 			for (int faceIdx = 0; faceIdx < this.Faces.Count; faceIdx++) {
 
-				//X3D standard requires that the faces are planar and do not have "holes"
-
-				Vector2[] prohjectedVertices = ProjectorVerticesOf (this.Faces [faceIdx], 
-					                               (vec) => new Vector2 (vec.x, vec.y));
-				if (HasDuplicates (prohjectedVertices)) {
-					prohjectedVertices = ProjectorVerticesOf (this.Faces [faceIdx], 
-						(vec) => new Vector2 (vec.y, vec.z));
-				}
-
 				if (this.Faces [faceIdx].Count == 3) {
 					triangles.AddLast (this.Faces [faceIdx]);
 					if (!this.NormalPerVertex && this.Normals != null) {
@@ -173,9 +163,51 @@
 						newColors.AddLast (this.Colors [faceIdx]);
 					}
 				} else {
+					//X3D standard requires that the faces are planar and do not have "holes"
+
+					Vector2[] prohjectedVertices = ProjectorVerticesOf (this.Faces [faceIdx], 
+						(vec) => new Vector2 (vec.x, vec.y));
 					Triangulator tr = new Triangulator (prohjectedVertices);
 					int[] indices = tr.Triangulate ();
-					
+
+					if (indices.Length < this.Faces [faceIdx].Count) {
+						prohjectedVertices = ProjectorVerticesOf (this.Faces [faceIdx], 
+							(vec) => new Vector2 (vec.y, vec.z));
+						tr = new Triangulator (prohjectedVertices);
+						indices = tr.Triangulate ();
+					}
+					if (indices.Length < this.Faces [faceIdx].Count) {
+						prohjectedVertices = ProjectorVerticesOf (this.Faces [faceIdx], 
+							(vec) => new Vector2 (vec.x, vec.z));
+						tr = new Triangulator (prohjectedVertices);
+						indices = tr.Triangulate ();
+					}
+
+					if (indices.Length < this.Faces [faceIdx].Count) {
+						Debug.Log ("ohOh");
+						string plane = "";
+						foreach (int vertexId in this.Faces [faceIdx]) {
+							plane += String.Format ("({0},{1},{2})   ", this.Vertices [vertexId].x, this.Vertices[vertexId].y, this.Vertices[vertexId].z);
+						}
+						Debug.Log (plane);
+						string plane2 = "";
+						foreach (Vector2 vector in prohjectedVertices) {
+							plane2 += String.Format ("({0},{1})   ", vector.x, vector.y);
+						}
+						Debug.Log (plane2);
+
+						string idx = "";
+						foreach (int i in this.Faces [faceIdx]) {
+							idx += "   " + i;
+						}
+						Debug.Log (idx);
+						string idx2 = "";
+						foreach (int i in indices) {
+							idx2 += "   " + i;
+						}
+						Debug.Log (idx2);
+					}
+
 					for (int i = 0; i < indices.Length / 3; i++) {
 						List<int> triangle = new List<int> ();
 
@@ -231,9 +263,8 @@
 		/// <returns>The face set where the condition normalPerVertex=colorPerVertex=true holds.</returns>
 		private X3DIndexedFaceSet ToVertexOrientedFaceSet ()
 		{
-			if (this.ColorPerVertex && this.NormalPerVertex
-			    || (!this.ColorPerVertex && this.Colors == null)
-			    || (!this.NormalPerVertex && this.Normals == null)) {
+			if ((this.ColorPerVertex || this.Colors == null) 
+				&& (this.NormalPerVertex || this.Normals == null)) {
 				return this;
 			}
 
@@ -244,16 +275,12 @@
 
 			List<Vector3> vertices = this.Vertices;
 			bool[] seenVertices = new bool[this.Vertices.Count];
-			List<Vector3> normals;
-			if (this.NormalPerVertex) {
-				normals = this.Normals;
-			} else {
+			List<Vector3> normals = this.Normals;
+			if (!this.NormalPerVertex && this.Normals != null) {	
 				normals = new List<Vector3> (new Vector3[this.Vertices.Count]);
 			}
-			List<Color> colors;
-			if (this.ColorPerVertex) {
-				colors = this.Colors;
-			} else {
+			List<Color> colors = this.Colors;
+			if (!this.ColorPerVertex && this.Colors != null) {
 				colors = new List<Color> (new Color[this.Vertices.Count]);
 			}
 				
@@ -298,7 +325,6 @@
 			if (colors != null) {
 				colors.AddRange (addedColors);
 			}
-
 			return new X3DIndexedFaceSet (this.Solid, true, true, vertices, normals, colors, faces);
 		}
 
@@ -327,7 +353,7 @@
 			foreach (int vertexId in face) {
 				projectedVectors.AddLast (projector (this.Vertices [vertexId]));
 			}
-			return new List<Vector2> (projectedVectors).ToArray ();
+			return projectedVectors.ToArray ();
 		}
 	}
 
