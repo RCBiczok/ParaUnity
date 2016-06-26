@@ -1,19 +1,20 @@
-﻿namespace ParaView
+﻿namespace ParaUnity
 {
 	using ParaUnity.X3D;
 	using UnityEngine;
 	using UnityEditor;
-	using System.Collections;
 	using System;
+	using System.Collections;
+	using System.Collections.Generic;
 	using System.Text;
 	using System.IO;
 	using System.Net;
+	using System.Linq;
 	using System.Net.Sockets;
 
 	[InitializeOnLoad]
 	public class EditorLoader : MonoBehaviour
 	{
-		private static X3DLoader LOADER = new X3DLoader ();
 		private static TcpListener LISTENER;
 
 		static EditorLoader()
@@ -32,28 +33,39 @@
 		{
 			if (LISTENER.Pending ()) {
 				Socket soc = LISTENER.AcceptSocket ();
-				string importDir = GetImportDir (soc);
+				string importDir = Loader.GetImportDir (soc);
 				if (!importDir.Equals ("TEST")) {
-					Debug.Log ("Import dir:" + importDir);
-					GameObject obj = (GameObject)LOADER.Load (importDir);
+					Debug.Log ("Importing from:" + importDir);
+					GameObject obj = StripScene(Loader.ImportGameObject(importDir));
 					obj.SetActive (true);
-					UnityEngine.Object prefab = PrefabUtility.CreateEmptyPrefab("Assets/imported.prefab");
-					PrefabUtility.ReplacePrefab(obj, prefab, ReplacePrefabOptions.ConnectToPrefab);
+					//AssetDatabase.CreateAsset(obj, "Assets/imported.asset");
+					//AssetDatabase.SaveAssets();
 					soc.Disconnect (false);
 				}
 			}
 		}
 			
-		private static string GetImportDir (Socket soc)
-		{
-			byte[] b = new byte[soc.Available];
-			int k = soc.Receive (b);
-			StringBuilder str = new StringBuilder ();
-			for (int i = 0; i < k; i++) {
-				str.Append (Convert.ToChar (b [i]));
+		private static GameObject StripScene(GameObject scene) {
+			List<GameObject> physicalObjects = ExtractPhysicalObjects (scene);
+			GameObject imported = new GameObject ("Imported");
+			foreach (GameObject obj in physicalObjects) {
+				obj.transform.parent = imported.transform;
 			}
-			return str.ToString ();
+			GameObject.DestroyImmediate (scene);
+			return imported;
 		}
 
+		private static List<GameObject> ExtractPhysicalObjects(GameObject obj) {
+			if (obj.transform.childCount > 0 &&
+				obj.transform.GetChild(0).GetComponent<Renderer> () != null) {
+				return new List<GameObject> (){ obj };
+			} else {
+				List<GameObject> objects = new List<GameObject> ();
+				foreach (Transform child in obj.transform) {
+					objects.AddRange (ExtractPhysicalObjects(child.gameObject));
+				}
+				return objects;
+			}
+		}
 	}
 }

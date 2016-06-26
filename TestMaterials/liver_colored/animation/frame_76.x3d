@@ -2,13 +2,13 @@
 
 <X3D profile="Immersive" version="3.0">
   <head>
-    <meta name="filename" content="C:/Users/RUDOLF~1/AppData/Local/Temp/Unity3DPlugin/Embedded//paraview_output/frame_76.x3d"/>
+    <meta name="filename" content="/var/folders/j1/3n5qfvpj5bl614tfr1syr5440000gn/T/Unity3DPlugin/Embedded/10830/paraview_output/frame_76.x3d"/>
     <meta name="generator" content="Visualization ToolKit X3D exporter v0.9.1"/>
     <meta name="numberofelements" content="9"/>
   </head>
   <Scene>
     <Background skyColor="0.32 0.34 0.43"/>
-    <Viewpoint fieldOfView="0.523599" position="100.221 790.674 -468.827" description="Default View" orientation="-0.0101996 0.684016 0.729395 -3.32634" centerOfRotation="29.7438 160.755 -514.582"/>
+    <Viewpoint fieldOfView="0.523599" position="29.7438 160.755 120.917" description="Default View" orientation="0 0 1 -0" centerOfRotation="29.7438 160.755 -514.582"/>
     <NavigationInfo type='"EXAMINE" "FLY" "ANY"' speed="4" headlight="true"/>
     <DirectionalLight ambientIntensity="1" intensity="0" color="1 1 1"/>
     <Transform DEF="ROOT" translation="0 0 0">
@@ -382,7 +382,7 @@
               0.114424 0.633046 0.765611,
               0.189873 0.610502 0.768918,
               0.47763 0.692012 0.541285,
-              7.56602e-005 0.975368 0.220582,
+              7.56602e-05 0.975368 0.220582,
               0.163416 0.959371 -0.230007,
               0.362329 0.931729 0.0244674,
               0.361125 0.880246 0.307823,

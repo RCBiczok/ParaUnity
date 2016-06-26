@@ -28,7 +28,7 @@
 		public static explicit operator GameObject (X3DNode node)
 		{
 			GameObject parent = new GameObject ("UnityRoot");
-			//parent.SetActive (false);
+			parent.SetActive (false);
 			node.Convert (parent);
 			return parent;
 		}

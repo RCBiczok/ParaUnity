@@ -5,6 +5,7 @@
 	using System.Xml.Linq;
 	using System.Collections.Generic;
 	using UnityEngine;
+	using UnityVC;
 
 	public class X3DIndexedFaceSet : X3DGeometry
 	{
@@ -140,7 +141,10 @@
 			part.GetComponent<MeshFilter> ().mesh = mesh;
 
 			part.AddComponent<MeshRenderer> ();
-			part.GetComponent<MeshRenderer> ().material = GameObject.Find ("MaterialPlaceHolder").GetComponent<MeshRenderer> ().material;
+			//part.GetComponent<MeshRenderer> ().material = GameObject.Find ("MaterialPlaceHolder").GetComponent<MeshRenderer> ().sharedMaterial;
+			Material material = new Material(Shader.Find("Standard (Vertex Color)"));
+			Util.SetMaterialKeywords(material, WorkflowMode.Specular);
+			part.GetComponent<MeshRenderer> ().material = material;
 		}
 
 		private X3DIndexedFaceSet ToTriangulatedFaceSet ()
@@ -162,10 +166,10 @@
 
 				if (this.Faces [faceIdx].Count == 3) {
 					triangles.AddLast (this.Faces [faceIdx]);
-					if (!this.NormalPerVertex) {
+					if (!this.NormalPerVertex && this.Normals != null) {
 						newNormals.AddLast (this.Normals [faceIdx]);
 					}
-					if (!this.ColorPerVertex) {
+					if (!this.ColorPerVertex && this.Colors != null) {
 						newColors.AddLast (this.Colors [faceIdx]);
 					}
 				} else {
@@ -192,10 +196,10 @@
 						}
 
 						triangles.AddLast (triangle);
-						if (!this.NormalPerVertex) {
+						if (!this.NormalPerVertex && this.Normals != null) {
 							newNormals.AddLast (this.Normals [faceIdx]);
 						}
-						if (!this.ColorPerVertex) {
+						if (!this.ColorPerVertex && this.Colors != null) {
 							newColors.AddLast (this.Colors [faceIdx]);
 						}
 					}
@@ -203,11 +207,11 @@
 			}
 				
 			List<Vector3> normals = this.Normals;
-			if (!this.NormalPerVertex) {
+			if (!this.NormalPerVertex && this.Normals != null) {
 				normals = new List<Vector3> (newNormals);
 			}
 			List<Color> colors = this.Colors;
-			if (!this.ColorPerVertex) {
+			if (!this.ColorPerVertex && this.Colors != null) {
 				colors = new List<Color> (newColors);
 			}
 
@@ -301,7 +305,6 @@
 		private bool IsFacingInRightDirection (Vector3 aOld, Vector3 bOld, Vector3 cOld,
 		                                       Vector3 aNew, Vector3 bNew, Vector3 cNew)
 		{
-
 			Vector3 surfaceNormalOld = Vector3.Cross (bOld - aOld, cOld - aOld);
 			Vector3 surfaceNormalNew = Vector3.Cross (bNew - aNew, cNew - aNew);
 

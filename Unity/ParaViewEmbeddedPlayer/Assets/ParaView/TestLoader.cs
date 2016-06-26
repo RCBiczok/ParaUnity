@@ -8,11 +8,6 @@
 	public class TestLoader : MonoBehaviour
 	{
 
-		public GameObject meshNode;
-		public Material defaultMaterial;
-		private GameObject[] frames;
-		//private int idx = 0;
-
 		// Use this for initialization
 		void Start ()
 		{
@@ -22,29 +17,15 @@
 			//string path = getTestX2DFile ("one_beam_cropped/one_beam_cropped.x3d");
 			//string path = getTestX2DFile ("on_beam_colored/on_beam_colored.x3d");
 			//string path = getTestX2DFile ("beam_colored/beam_colored_2.x3d");
-			string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_wireframe.x3d");
+			//string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_wireframe.x3d");
+			//string path = getTestX2DFile ("advanced/1.x3d");
 			//string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_outline.x3d");
 			//string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_surface_with_edges.x3d");
 			//string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_points.x3d");
-			//string path = getTestX2DFile ("liver_colored/animation");
-			frames = Loader.ImportMesh (path, meshNode);
-			frames [0].SetActive (true);
+			string path = getTestX2DFile ("liver_colored/animation");
+			GameObject obj = Loader.ImportGameObject (path);
+			obj.SetActive (true);
 		}
-
-		/*public void Update ()
-		{
-			if (frames != null) {
-				frames [idx % frames.Length].transform.parent = null;
-				frames [idx % frames.Length].SetActive (false);
-				frames [(idx + 1) % frames.Length].transform.parent = meshNode.transform;
-				frames [(idx + 1) % frames.Length].SetActive (true);
-				idx++;
-				if (idx == frames.Length) {
-					idx = 0;
-				}
-				Debug.Log (idx);
-			}
-		}*/
 
         private string getTestX2DFile(string testFile)
         {
