@@ -18,11 +18,11 @@
 			//string path = getTestX2DFile ("on_beam_colored/on_beam_colored.x3d");
 			//string path = getTestX2DFile ("beam_colored/beam_colored_2.x3d");
 			//string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_wireframe.x3d");
-			//string path = getTestX2DFile ("advanced/1.x3d");
+			string path = getTestX2DFile ("advanced/1.x3d");
 			//string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_outline.x3d");
 			//string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_surface_with_edges.x3d");
 			//string path = getTestX2DFile ("paraview_tutorial_data/disk_out_ref/disk_out_ref_points.x3d");
-			string path = getTestX2DFile ("liver_colored/animation");
+			//string path = getTestX2DFile ("liver_colored/animation");
 			GameObject obj = Loader.ImportGameObject (path);
 			obj.SetActive (true);
 		}
