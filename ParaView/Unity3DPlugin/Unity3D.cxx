@@ -182,10 +182,10 @@ void Unity3D::exportScene(pqServerManagerModel *sm,
 	pqAnimationScene* scene = core->animationManager()->getActiveScene();
 
 	QString message;
-
+  
 	if (scene->getTimeSteps().length() > 0) {
 		vtkSMPropertyHelper animationProp(scene->getProxy(), "AnimationTime");
-		int lastTime = animationProp.GetAsInt();
+		double lastTime = animationProp.GetAsDouble();
 		QString exportDir = exportLocation + "/paraview_output";
         
         QDir dir(exportDir);
@@ -195,7 +195,7 @@ void Unity3D::exportScene(pqServerManagerModel *sm,
         QDir(exportLocation).mkdir("paraview_output");
         
 		for (int i = 0; i < scene->getTimeSteps().length(); i++) {
-			animationProp.Set(i);
+			animationProp.Set(scene->getTimeSteps()[i]);
 			scene->getProxy()->UpdateVTKObjects();
             
 			QString exportFile = exportDir + "/frame_" + QString::number(i) + ".x3d";
