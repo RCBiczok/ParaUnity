@@ -2,8 +2,8 @@
 
 This project illustrates the combination of ParaView and Virtual Reality by using the Unity gaming engine.
 
-It is possible to either export your rendered Data from ParaView into a running (and prepared) Unity Project or
-visualize it in a separate Unity Player Window
+It is possible to either export your rendered data from ParaView into a running (and prepared) Unity Project or
+visualize it in a separate Unity Player window
 
 ## Development Setup (Windows)
 
@@ -11,8 +11,6 @@ The information listed here is specific to Windows machines. However, the source
 and the development setup on other systems should be quite similar (and even less problematic).
 
 ### Required Components
-
-Um die ParaView-Erweiterung zu übersetzen bzw. weiterzuentwickeln sind folgende \pbw{Entwicklungswerkzeuge} notwendig:
 
 | Software                                                                          | Recommended Version |
 | --------------------------------------------------------------------------------- | ------------------- |
@@ -28,7 +26,7 @@ versions of the Visual Studio runtime is the main source for runtime failures.
 ### Compilation
 
 
-1. **Compile Qt (optional):** unpack the Qt source code to your preferred location and run the following commands inside a
+1. **Compile Qt (optional):** extract the Qt source code to your preferred location and run the following commands inside a
    Visual Studio command prompt:
 
    ```
@@ -43,7 +41,8 @@ versions of the Visual Studio runtime is the main source for runtime failures.
 
    This step is not required unless you want to build the ParaView plugin with Qt 4.8 and Visual Studio 2013
 
-2. [**Compile ParaView:**](http://www.paraview.org/Wiki/ParaView:Build_And_Install) unpack the ParaView source code to your preferred location and run the following commands inside
+2. [**Compile ParaView:**](http://www.paraview.org/Wiki/ParaView:Build_And_Install) extract the ParaView source code to
+   your preferred location and run the following commands inside
    a terminal (e.g. cmd.exe):
 
    ```
@@ -63,7 +62,7 @@ versions of the Visual Studio runtime is the main source for runtime failures.
    nmake
    ```
 
-   `PARAVIEW_DIR` is the directory where you unpacked and compiled ParaView source reside.
+   `<PARAVIEW_DIR>` is the directory where your extracted and compiled ParaView source reside.
 4. **Compile the Unity Player component:** Navigate to the subfolder `Unity/ParaViewEmbeddedPlayer`
    And open the project with the Unity Editor.
 
