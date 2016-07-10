@@ -29,7 +29,7 @@ ENDIF()
 
 TARGET_LINK_LIBRARIES (Unity3D
   LINK_PRIVATE
-#    vtkRenderingFreeType
+    vtkRenderingFreeType
 #    vtkPVAnimation
 #    vtkPVServerManagerApplication
 #    vtkPVApplicationCore
